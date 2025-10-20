@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}我的评论 - 影视推荐系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">💬 我的评论</h2>
+    
+    {% if reviews %}
+    <div class="card">
+        <div class="card-body">
+            {% for review in reviews %}
+            <div class="media mb-4 border-bottom pb-3">
+                <img src="{% if review.film.poster %}{{ review.film.poster.url }}{% else %}/static/images/default_poster.jpg{% endif %}" 
+                     alt="{{ review.film.title }}" class="mr-3" style="width: 100px; height: 150px; object-fit: cover;">
+                <div class="media-body">
+                    <h5 class="mt-0">
+                        <a href="{% url 'film_detail' review.film.id %}" class="text-primary">{{ review.film.title }}</a>
+                    </h5>
+                    <p class="text-muted mb-1">
+                        导演: {{ review.film.director }} | 
+                        上映日期: {{ review.film.release_date|date:"Y年m月d日"|default:"未知" }}
+                    </p>
+                    <div class="mb-2">
+                        {% for i in "12345"|make_list %}
+                        <span class="text-warning {% if forloop.counter > review.rating %}text-muted{% endif %}">★</span>
+                        {% endfor %}
+                        <small class="text-muted ml-2">{{ review.created_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+                    <p class="text-dark">{{ review.comment }}</p>
+                    <div class="mt-2">
+                        <a href="{% url 'delete_review' review.id %}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这条评论吗？')">
+                            删除评论
+                        </a>
+                        <a href="{% url 'add_review' review.film.id %}" class="btn btn-primary btn-sm ml-2">
+                            编辑评论
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- 分页 -->
+    {% if reviews.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if reviews.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ reviews.previous_page_number }}">上一页</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">上一页</span>
+            </li>
+            {% endif %}
+            
+            {% for i in reviews.paginator.page_range %}
+            {% if reviews.number == i %}
+            <li class="page-item active">
+                <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if reviews.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ reviews.next_page_number }}">下一页</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">下一页</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="card text-center">
+        <div class="card-body">
+            <h5 class="card-title">您还没有发表任何评论</h5>
+            <p class="card-text">快去发现喜欢的电影并发表您的看法吧！</p>
+            <a href="{% url 'index' %}" class="btn btn-primary">浏览电影</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

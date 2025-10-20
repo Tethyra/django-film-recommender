@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}社区讨论 - 影视推荐系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">🎬 社区讨论</h2>
+    
+    <!-- 活跃用户 -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">活跃用户</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for user in active_users %}
+                <div class="col-md-2 mb-3">
+                    <div class="text-center">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="rounded-circle img-thumbnail mb-2" style="width: 60px; height: 60px;">
+                        {% else %}
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                            {{ user.username|first|upper }}
+                        </div>
+                        {% endif %}
+                        <h5 class="font-weight-bold">{{ user.username }}</h5>
+                        <p class="text-muted text-sm">评论: {{ user.review_count }}条</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-center text-muted">暂无活跃用户</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 热门评论 -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">最新评论</h4>
+        </div>
+        <div class="card-body">
+            {% for review in popular_reviews %}
+            <div class="media mb-4">
+                <img src="{% if review.user.avatar %}{{ review.user.avatar.url }}{% else %}/static/images/default_avatar.jpg{% endif %}" 
+                     alt="{{ review.user.username }}" class="mr-3 rounded-circle" style="width: 50px; height: 50px;">
+                <div class="media-body">
+                    <h5 class="mt-0">
+                        <a href="{% url 'profile' review.user.username %}" class="text-primary">{{ review.user.username }}</a>
+                        <small class="text-muted ml-2">{{ review.created_at|date:"Y-m-d H:i" }}</small>
+                    </h5>
+                    <p class="mb-1">
+                        <a href="{% url 'film_detail' review.film.id %}" class="text-dark">{{ review.film.title }}</a>
+                    </p>
+                    <div class="mb-1">
+                        {% for i in "12345"|make_list %}
+                        <span class="text-warning {% if forloop.counter > review.rating %}text-muted{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                    <p class="text-muted">{{ review.comment }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-muted">暂无评论</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

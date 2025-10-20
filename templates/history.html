@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-history"></i> 我的观看记录</h5>
+        </div>
+        <div class="card-body">
+            {% if watch_history %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>影视作品</th>
+                                <th>观看时间</th>
+                                <th>观看进度</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in watch_history %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if record.film.poster %}
+                                                <img src="{{ record.film.poster.url }}" alt="{{ record.film.title }}" width="60" height="90" class="rounded me-3">
+                                            {% else %}
+                                                <img src="https://via.placeholder.com/60x90?text=No+Poster" alt="{{ record.film.title }}" class="rounded me-3">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0">{{ record.film.title }}</h6>
+                                                <div class="rating">
+                                                    {% for i in "12345"|make_list %}
+                                                        {% if forloop.counter <= record.film.rating|floatformat:0 %}
+                                                            <i class="fa fa-star"></i>
+                                                        {% else %}
+                                                            <i class="fa fa-star-o"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <span class="ms-1">{{ record.film.rating|floatformat:1 }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ record.watch_time|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% if record.watch_duration > 0 %}
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <small class="text-muted">60%</small>
+                                        {% else %}
+                                            <span class="text-muted">未开始</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'film_detail' record.film.id %}" class="btn btn-sm btn-primary">继续观看</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                {% if watch_history.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if watch_history.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ watch_history.previous_page_number }}">上一页</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">上一页</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in watch_history.paginator.page_range %}
+                                {% if watch_history.number == i %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if watch_history.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ watch_history.next_page_number }}">下一页</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">下一页</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa fa-film fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">暂无观看记录</h4>
+                    <p class="text-muted mt-2">快去浏览影视作品开始观看吧！</p>
+                    <a href="{% url 'category' %}" class="btn btn-primary mt-3">浏览影视</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

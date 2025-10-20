@@ -1,0 +1,420 @@
+<!-- film_project_channels/templates/base.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}影视推荐系统{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css">
+    <!-- Custom CSS -->
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            flex: 1;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0.8rem 1rem;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #dc3545 !important;
+        }
+        
+        .navbar-nav .nav-link {
+            color: #333;
+            font-weight: 500;
+            margin-right: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: #dc3545;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .card-img-top {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        /* 按钮样式 */
+        .btn-primary {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        
+        /* 表单样式 */
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        /* 评论样式 */
+        .comment {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 评分样式 */
+        .rating {
+            color: #ffc107;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 在线人数指示器 */
+        .online-indicator {
+            display: inline-flex;
+            align-items: center;
+            background-color: #28a745;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 1rem;
+        }
+        
+        .online-indicator i {
+            font-size: 0.6rem;
+            margin-right: 0.3rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .card-img-top {
+                height: 200px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .online-indicator {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <i class="fa fa-film"></i> 影视推荐系统
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'index' %}">
+                            <i class="fa fa-home"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'category' in request.path %}active{% endif %}" href="{% url 'category' %}">
+                            <i class="fa fa-th-list"></i> 分类
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'rankings' in request.path %}active{% endif %}" href="{% url 'rankings' %}">
+                            <i class="fa fa-trophy"></i> 排行榜
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'community' in request.path %}active{% endif %}" href="{% url 'community' %}">
+                            <i class="fa fa-users"></i> 社区
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- 搜索框 -->
+                <form class="d-flex me-3" action="{% url 'search' %}" method="get">
+                    <input class="form-control me-2" type="search" name="query" placeholder="搜索电影、导演、演员..." aria-label="Search">
+                    <button class="btn btn-outline-danger" type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+                
+                <!-- 用户菜单 -->
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.avatar_url %}
+                                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;">
+                                {% else %}
+                                    <i class="fa fa-bullseye"></i>
+                                {% endif %}
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="fa fa-bullseye"></i> 个人资料
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'favorites' %}">
+                                    <i class="fa fa-heart"></i> 我的收藏
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'history' %}">
+                                    <i class="fa fa-history"></i> 观看历史
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'my_reviews' %}">
+                                    <i class="fa fa-comment"></i> 我的评论
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                    <i class="fa fa-sign-out"></i> 退出登录
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="fa fa-sign-in"></i> 登录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">
+                                <i class="fa fa-user-plus"></i> 注册
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <!-- 在线人数显示 -->
+                    <li class="nav-item">
+                        <div class="online-indicator" id="onlineIndicator">
+                            <i class="fa fa-circle"></i>
+                            <span id="onlineCount">0</span> 人在线
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主要内容 -->
+    <div class="container mt-4">
+        <!-- 消息提示 -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- 页面内容 -->
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>影视推荐系统</h4>
+                    <p>为您提供最新、最热门的影视推荐服务</p>
+                </div>
+                <div class="col-md-4">
+                    <h4>快速链接</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'index' %}">首页</a></li>
+                        <li><a href="{% url 'category' %}">分类浏览</a></li>
+                        <li><a href="{% url 'rankings' %}">排行榜</a></li>
+                        <li><a href="{% url 'community' %}">社区讨论</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>联系我们</h4>
+                    <ul class="footer-links">
+                        <li><i class="fa fa-envelope"></i> contact@example.com</li>
+                        <li><i class="fa fa-phone"></i> +86 123 4567 8910</li>
+                        <li><i class="fa fa-map-marker"></i> 北京市朝阳区</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p>&copy; 2025 影视推荐系统. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    
+    <!-- WebSocket 在线人数统计 -->
+    <script>
+        // 连接WebSocket
+        let socket;
+        
+        function connectWebSocket() {
+            // 确保只创建一个连接
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                return;
+            }
+            
+            // 创建WebSocket连接
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            socket = new WebSocket(`${protocol}//${window.location.host}/ws/online/`);
+            
+            // 连接成功
+            socket.onopen = function() {
+                console.log('WebSocket连接已建立');
+                // 请求在线人数
+                socket.send(JSON.stringify({
+                    'type': 'request_online_count'
+                }));
+            };
+            
+            // 接收消息
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'online_count') {
+                    document.getElementById('onlineCount').textContent = data.count;
+                }
+            };
+            
+            // 连接关闭
+            socket.onclose = function() {
+                console.log('WebSocket连接已关闭');
+                // 3秒后重新连接
+                setTimeout(connectWebSocket, 3000);
+            };
+            
+            // 连接错误
+            socket.onerror = function(error) {
+                console.error('WebSocket错误:', error);
+                socket.close();
+            };
+        }
+        
+        // 页面加载完成后连接WebSocket
+        $(document).ready(function() {
+            connectWebSocket();
+            
+            // 定期请求在线人数更新
+            setInterval(function() {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        'type': 'request_online_count'
+                    }));
+                }
+            }, 30000); // 每30秒更新一次
+        });
+        
+        // 页面卸载时关闭连接
+        window.addEventListener('beforeunload', function() {
+            if (socket) {
+                socket.close();
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

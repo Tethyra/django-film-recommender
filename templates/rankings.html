@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-trophy"></i> 影视排行榜</h5>
+        </div>
+        <div class="card-body">
+            <p>发现最受观众喜爱的电影和电视剧</p>
+            
+            <!-- 电影排行榜 -->
+            <div class="mb-6">
+                <h4 class="mb-3"><i class="fa fa-film"></i> 电影排行榜</h4>
+                <div class="row">
+                    {% for film in film_rankings %}
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if film.poster %}
+                                        <img src="{{ film.poster.url }}" alt="{{ film.title }}" width="80" height="120" class="rounded">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/80x120?text=No+Poster" alt="{{ film.title }}" class="rounded">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ forloop.counter }}. {{ film.title }}</h6>
+                                    <div class="rating">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= film.rating|floatformat:0 %}
+                                                <i class="fa fa-star"></i>
+                                            {% else %}
+                                                <i class="fa fa-star-o"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                    </div>
+                                    <p class="text-muted mb-0">{{ film.description|truncatechars:100 }}</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">暂无电影排行榜数据</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- 剧集排行榜 -->
+            <div class="mb-6">
+                <h4 class="mb-3"><i class="fa fa-television"></i> 剧集排行榜</h4>
+                <div class="row">
+                    {% for film in series_rankings %}
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if film.poster %}
+                                        <img src="{{ film.poster.url }}" alt="{{ film.title }}" width="80" height="120" class="rounded">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/80x120?text=No+Poster" alt="{{ film.title }}" class="rounded">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ forloop.counter }}. {{ film.title }}</h6>
+                                    <div class="rating">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= film.rating|floatformat:0 %}
+                                                <i class="fa fa-star"></i>
+                                            {% else %}
+                                                <i class="fa fa-star-o"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                    </div>
+                                    <p class="text-muted mb-0">{{ film.description|truncatechars:100 }}</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">暂无剧集排行榜数据</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- 动画排行榜 -->
+            <div class="mb-6">
+                <h4 class="mb-3"><i class="fa fa-picture-o"></i> 动画排行榜</h4>
+                <div class="row">
+                    {% for film in animation_rankings %}
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if film.poster %}
+                                        <img src="{{ film.poster.url }}" alt="{{ film.title }}" width="80" height="120" class="rounded">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/80x120?text=No+Poster" alt="{{ film.title }}" class="rounded">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ forloop.counter }}. {{ film.title }}</h6>
+                                    <div class="rating">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= film.rating|floatformat:0 %}
+                                                <i class="fa fa-star"></i>
+                                            {% else %}
+                                                <i class="fa fa-star-o"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                    </div>
+                                    <p class="text-muted mb-0">{{ film.description|truncatechars:100 }}</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">暂无动画排行榜数据</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- 上升最快 -->
+            <div>
+                <h4 class="mb-3"><i class="fa fa-arrow-up"></i> 上升最快</h4>
+                <div class="row">
+                    {% for film in trending_rankings %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card film-card">
+                                {% if film.poster %}
+                                    <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ film.title }}</h6>
+                                    <div class="rating">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= film.rating|floatformat:0 %}
+                                                <i class="fa fa-star"></i>
+                                            {% else %}
+                                                <i class="fa fa-star-o"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                    </div>
+                                    <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary mt-2">查看详情</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">暂无上升最快数据</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

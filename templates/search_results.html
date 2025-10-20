@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-search"></i> 搜索结果</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">搜索关键词: "{{ query }}"</p>
+            
+            {% if films %}
+                <div class="row">
+                    {% for film in films %}
+                        <div class="col-md-3">
+                            <div class="card film-card">
+                                {% if film.poster %}
+                                    <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="250">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/300x250?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="250">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ film.title }}</h6>
+                                    <div class="rating">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= film.rating|floatformat:0 %}
+                                                <i class="fa fa-star"></i>
+                                            {% else %}
+                                                <i class="fa fa-star-o"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        {% for category in film.categories.all|slice:":2" %}
+                                            <span class="badge badge-primary">{{ category.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    <a href="{% url 'film_detail' film.id %}" class="btn btn-primary mt-2 w-100">查看详情</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- 分页 -->
+                {% if films.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if films.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?query={{ query }}&page={{ films.previous_page_number }}">上一页</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">上一页</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in films.paginator.page_range %}
+                                {% if films.number == i %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?query={{ query }}&page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if films.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?query={{ query }}&page={{ films.next_page_number }}">下一页</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">下一页</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">没有找到相关结果</h4>
+                    <p class="text-muted mt-2">请尝试其他搜索关键词</p>
+                    <div class="search-form mt-3">
+                        <form action="{% url 'search' %}" method="get" class="d-flex">
+                            <input class="form-control me-0" type="search" name="query" placeholder="重新搜索..." aria-label="Search">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
