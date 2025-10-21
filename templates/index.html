@@ -1,641 +1,143 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    影视推荐系统 - 发现精彩影视
-{% endblock %}
-
 {% block content %}
-<!-- Hero Section -->
-<section class="relative bg-gradient-to-r from-pink-500 to-purple-600 text-white py-16 mb-8">
-    <div class="container mx-auto px-4">
-        <div class="text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
-                发现精彩影视
-            </h1>
-            <p class="text-xl md:text-2xl mb-8 opacity-90">
-                探索最新、最热门的电影、电视剧和动画
-            </p>
-            
-            <!-- 在线人数显示 -->
-            <div class="mb-6">
-                <div class="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full backdrop-blur-sm">
-                    <i class="fas fa-users text-yellow-300 mr-2"></i>
-                    <span class="font-medium">当前在线: {{ online_user_count }} 人</span>
-                </div>
-            </div>
-            
-            <!-- 搜索框 -->
-            <div class="max-w-2xl mx-auto">
-                <form action="{% url 'search' %}" method="get" class="relative">
-                    <input type="text" name="query" placeholder="搜索电影、导演、演员..." 
-                           class="w-full px-6 py-4 pl-12 text-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
-                    <button type="submit" class="absolute left-4 top-1/2 transform -translate-y-1/2">
-                        <i class="fas fa-search text-gray-600"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
-
-<div class="container mx-auto px-4">
-    <!-- 快速分类导航 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">热门分类</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {% for category in popular_categories %}
-            <a href="{% url 'category' category.id %}" 
-               class="flex flex-col items-center p-4 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg hover:shadow-md transition-shadow group">
-                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-pink-200 transition-colors">
-                    <i class="fas fa-film text-pink-500 text-xl"></i>
-                </div>
-                <span class="text-sm font-medium text-gray-700 group-hover:text-pink-500 transition-colors text-center">
-                    {{ category.name }}
-                </span>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-
+<div class="container">
     <!-- 热门推荐 -->
-    <section class="mb-12">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">热门推荐</h2>
-            <a href="{% url 'rankings' %}?sort=rating" class="text-pink-500 hover:text-pink-600 transition-colors">
-                查看全部 <i class="fas fa-arrow-right ml-1"></i>
-            </a>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-fire"></i> 热门推荐</h5>
         </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {% for film in popular_films %}
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-                <!-- 电影海报 -->
-                <div class="relative overflow-hidden">
-                    {% if film.poster_url %}
-                        <img src="{{ film.poster_url }}" alt="{{ film.title }}" 
-                             class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300">
-                    {% else %}
-                        <div class="w-full h-64 bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                            <div class="text-center">
-                                <i class="fas fa-film text-4xl text-pink-500 mb-2"></i>
-                                <p class="text-gray-600 text-sm">暂无海报</p>
+        <div class="card-body">
+            <div class="row">
+                {% for film in popular_films %}
+                    <div class="col-md-4">
+                        <div class="card film-card">
+                            {% if film.poster %}
+                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ film.title }}</h6>
+                                <div class="rating">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= film.rating|floatformat:0 %}
+                                            <i class="fa fa-star"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                </div>
+                                <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                             </div>
                         </div>
-                    {% endif %}
-                    
-                    <!-- 悬停操作按钮 -->
-                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        {% if user.is_authenticated %}
-                        <button class="favorite-btn p-2 bg-white bg-opacity-90 text-pink-500 rounded-full hover:bg-white transition-colors" 
-                                data-film-id="{{ film.id }}">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                        <button class="watch-history-btn p-2 bg-white bg-opacity-90 text-gray-700 rounded-full hover:bg-white transition-colors" 
-                                data-film-id="{{ film.id }}">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        {% endif %}
-                        <a href="{% url 'film_detail' film.id %}" class="p-2 bg-white bg-opacity-90 text-gray-700 rounded-full hover:bg-white transition-colors">
-                            <i class="fas fa-info"></i>
-                        </a>
                     </div>
-                    
-                    <!-- 评分标签 -->
-                    <div class="absolute top-3 right-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                        {{ film.avg_rating|floatformat:1|default:"0.0" }}
+                {% empty %}
+                    <div class="col-12 text-center">
+                        <p class="text-muted">暂无热门推荐内容</p>
                     </div>
-                </div>
-                
-                <!-- 电影信息 -->
-                <div class="p-4">
-                    <h3 class="font-bold text-gray-800 mb-2 line-clamp-1 hover:text-pink-500 transition-colors">
-                        <a href="{% url 'film_detail' film.id %}">{{ film.title }}</a>
-                    </h3>
-                    <p class="text-sm text-gray-600 mb-2 line-clamp-1">
-                        {{ film.director|default:"未知导演" }}
-                    </p>
-                    <p class="text-xs text-gray-500 mb-3">
-                        {{ film.release_date|date:"Y年"|default:"未知年份" }}
-                    </p>
-                    
-                    <!-- 分类标签 -->
-                    <div class="flex flex-wrap gap-1">
-                        {% for cat in film.categories.all|slice:":2" %}
-                        <span class="px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded-full">
-                            {{ cat.name }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                </div>
+                {% endfor %}
             </div>
-            {% empty %}
-            <div class="col-span-full text-center py-12 bg-white rounded-xl shadow-sm">
-                <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-medium text-gray-700 mb-2">暂无推荐内容</h3>
-                <p class="text-gray-500">请稍后再试</p>
-            </div>
-            {% endfor %}
         </div>
-    </section>
+    </div>
 
     <!-- 新片上映 -->
-    <section class="mb-12">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">新片上映</h2>
-            <a href="{% url 'rankings' %}?sort=release_date" class="text-pink-500 hover:text-pink-600 transition-colors">
-                查看全部 <i class="fas fa-arrow-right ml-1"></i>
-            </a>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-calendar"></i> 新片上映</h5>
         </div>
-        
-        <div class="relative">
-            <div class="overflow-x-auto pb-4">
-                <div class="flex gap-6 min-w-max">
-                    {% for film in new_films %}
-                    <div class="w-64 bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-                        <!-- 电影海报 -->
-                        <div class="relative overflow-hidden">
-                            {% if film.poster_url %}
-                                <img src="{{ film.poster_url }}" alt="{{ film.title }}" 
-                                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="card-body">
+            <div class="row">
+                {% for film in new_films %}
+                    <div class="col-md-4">
+                        <div class="card film-card">
+                            {% if film.poster %}
+                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
                             {% else %}
-                                <div class="w-full h-48 bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                    <div class="text-center">
-                                        <i class="fas fa-film text-3xl text-pink-500 mb-2"></i>
-                                        <p class="text-gray-600 text-sm">暂无海报</p>
-                                    </div>
-                                </div>
+                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
                             {% endif %}
-                            
-                            <!-- 新片标签 -->
-                            <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                                新片
-                            </div>
-                            
-                            <!-- 评分标签 -->
-                            <div class="absolute top-3 right-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                                {{ film.avg_rating|floatformat:1|default:"0.0" }}
-                            </div>
-                        </div>
-                        
-                        <!-- 电影信息 -->
-                        <div class="p-4">
-                            <h3 class="font-bold text-gray-800 mb-2 line-clamp-1 hover:text-pink-500 transition-colors">
-                                <a href="{% url 'film_detail' film.id %}">{{ film.title }}</a>
-                            </h3>
-                            <p class="text-sm text-gray-600 mb-2">
-                                {{ film.release_date|date:"Y年m月d日"|default:"未知日期" }}
-                            </p>
-                            
-                            <!-- 分类标签 -->
-                            <div class="flex flex-wrap gap-1">
-                                {% for cat in film.categories.all|slice:":2" %}
-                                <span class="px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded-full">
-                                    {{ cat.name }}
-                                </span>
-                                {% endfor %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ film.title }}</h6>
+                                <div class="rating">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= film.rating|floatformat:0 %}
+                                            <i class="fa fa-star"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                </div>
+                                <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                             </div>
                         </div>
                     </div>
-                    {% empty %}
-                    <div class="text-center py-12">
-                        <i class="fas fa-calendar text-4xl text-gray-300 mb-4"></i>
-                        <h3 class="text-xl font-medium text-gray-700 mb-2">暂无新片</h3>
-                        <p class="text-gray-500">敬请期待</p>
+                {% empty %}
+                    <div class="col-12 text-center">
+                        <p class="text-muted">暂无新片上映信息</p>
                     </div>
-                    {% endfor %}
-                </div>
+                {% endfor %}
             </div>
-            
-            <!-- 滚动按钮 -->
-            {% if new_films|length > 4 %}
-            <button class="absolute left-2 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors scroll-left">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors scroll-right">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-            {% endif %}
         </div>
-    </section>
+    </div>
 
-    <!-- 分类排行榜 -->
-    <section class="mb-12">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">分类排行榜</h2>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- 电影排行榜 -->
-            {% if movie_rankings %}
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">电影 Top 10</h3>
-                    <a href="{% url 'category' movie_category.id %}" class="text-pink-500 text-sm hover:text-pink-600 transition-colors">
-                        查看更多
-                    </a>
-                </div>
-                
-                <div class="space-y-3">
-                    {% for film in movie_rankings|slice:":10" %}
-                    <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <!-- 排名 -->
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
-                            {% if forloop.counter == 1 %}
-                            <span class="bg-yellow-100 text-yellow-700">1</span>
-                            {% elif forloop.counter == 2 %}
-                            <span class="bg-gray-200 text-gray-700">2</span>
-                            {% elif forloop.counter == 3 %}
-                            <span class="bg-orange-100 text-orange-700">3</span>
-                            {% else %}
-                            <span class="bg-gray-100 text-gray-600">{{ forloop.counter }}</span>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- 海报 -->
-                        <div class="w-12 h-16 rounded overflow-hidden">
-                            {% if film.poster_url %}
-                                <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="w-full h-full object-cover">
-                            {% else %}
-                                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                    <i class="fas fa-film text-xs text-pink-500"></i>
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- 信息 -->
-                        <div class="flex-grow min-w-0">
-                            <h4 class="font-medium text-gray-800 line-clamp-1 hover:text-pink-500 transition-colors">
-                                <a href="{% url 'film_detail' film.id %}">{{ film.title }}</a>
-                            </h4>
-                            <p class="text-xs text-gray-500">
-                                {{ film.release_date|date:"Y年"|default:"未知年份" }}
-                            </p>
-                        </div>
-                        
-                        <!-- 评分 -->
-                        <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                            <i class="fas fa-star text-yellow-500 text-xs mr-1"></i>
-                            <span class="font-bold text-yellow-700 text-sm">{{ film.avg_rating|floatformat:1|default:"0.0" }}</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-            
-            <!-- 电视剧排行榜 -->
-            {% if tv_rankings %}
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">电视剧 Top 10</h3>
-                    <a href="{% url 'category' tv_category.id %}" class="text-pink-500 text-sm hover:text-pink-600 transition-colors">
-                        查看更多
-                    </a>
-                </div>
-                
-                <div class="space-y-3">
-                    {% for film in tv_rankings|slice:":10" %}
-                    <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <!-- 排名 -->
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
-                            {% if forloop.counter == 1 %}
-                            <span class="bg-yellow-100 text-yellow-700">1</span>
-                            {% elif forloop.counter == 2 %}
-                            <span class="bg-gray-200 text-gray-700">2</span>
-                            {% elif forloop.counter == 3 %}
-                            <span class="bg-orange-100 text-orange-700">3</span>
-                            {% else %}
-                            <span class="bg-gray-100 text-gray-600">{{ forloop.counter }}</span>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- 海报 -->
-                        <div class="w-12 h-16 rounded overflow-hidden">
-                            {% if film.poster_url %}
-                                <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="w-full h-full object-cover">
-                            {% else %}
-                                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                    <i class="fas fa-film text-xs text-pink-500"></i>
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- 信息 -->
-                        <div class="flex-grow min-w-0">
-                            <h4 class="font-medium text-gray-800 line-clamp-1 hover:text-pink-500 transition-colors">
-                                <a href="{% url 'film_detail' film.id %}">{{ film.title }}</a>
-                            </h4>
-                            <p class="text-xs text-gray-500">
-                                {{ film.release_date|date:"Y年"|default:"未知年份" }}
-                            </p>
-                        </div>
-                        
-                        <!-- 评分 -->
-                        <div class="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
-                            <i class="fas fa-star text-yellow-500 text-xs mr-1"></i>
-                            <span class="font-bold text-yellow-700 text-sm">{{ film.avg_rating|floatformat:1|default:"0.0" }}</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
+    <!-- 经典重温 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-diamond"></i> 经典重温</h5>
         </div>
-    </section>
-
-    <!-- 用户互动区 -->
-    {% if user.is_authenticated %}
-    <section class="mb-12">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- 我的收藏 -->
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">我的收藏</h3>
-                    <a href="{% url 'favorites' %}" class="text-pink-500 text-sm hover:text-pink-600 transition-colors">
-                        查看全部
-                    </a>
-                </div>
-                
-                {% if user_favorites %}
-                <div class="space-y-3">
-                    {% for favorite in user_favorites|slice:":4" %}
-                    <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="w-10 h-14 rounded overflow-hidden">
-                            {% if favorite.film.poster_url %}
-                                <img src="{{ favorite.film.poster_url }}" alt="{{ favorite.film.title }}" class="w-full h-full object-cover">
+        <div class="card-body">
+            <div class="row">
+                {% for film in classic_films %}
+                    <div class="col-md-4">
+                        <div class="card film-card">
+                            {% if film.poster %}
+                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
                             {% else %}
-                                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                    <i class="fas fa-film text-xs text-pink-500"></i>
-                                </div>
+                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
                             {% endif %}
-                        </div>
-                        <div class="flex-grow min-w-0">
-                            <h4 class="font-medium text-gray-800 text-sm line-clamp-1 hover:text-pink-500 transition-colors">
-                                <a href="{% url 'film_detail' favorite.film.id %}">{{ favorite.film.title }}</a>
-                            </h4>
-                            <p class="text-xs text-gray-500">
-                                {{ favorite.created_at|date:"m月d日" }}
-                            </p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8">
-                    <i class="fas fa-heart text-2xl text-gray-300 mb-2"></i>
-                    <p class="text-gray-500 text-sm">还没有收藏任何电影</p>
-                    <a href="#" class="text-pink-500 text-sm hover:text-pink-600 transition-colors">去收藏一些吧</a>
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- 观看历史 -->
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">观看历史</h3>
-                    <a href="{% url 'history' %}" class="text-pink-500 text-sm hover:text-pink-600 transition-colors">
-                        查看全部
-                    </a>
-                </div>
-                
-                {% if watch_history %}
-                <div class="space-y-3">
-                    {% for history in watch_history|slice:":4" %}
-                    <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="w-10 h-14 rounded overflow-hidden">
-                            {% if history.film.poster_url %}
-                                <img src="{{ history.film.poster_url }}" alt="{{ history.film.title }}" class="w-full h-full object-cover">
-                            {% else %}
-                                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                    <i class="fas fa-film text-xs text-pink-500"></i>
+                            <div class="card-body">
+                                <h6 class="card-title">{{ film.title }}</h6>
+                                <div class="rating">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= film.rating|floatformat:0 %}
+                                            <i class="fa fa-star"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                                 </div>
-                            {% endif %}
-                        </div>
-                        <div class="flex-grow min-w-0">
-                            <h4 class="font-medium text-gray-800 text-sm line-clamp-1 hover:text-pink-500 transition-colors">
-                                <a href="{% url 'film_detail' history.film.id %}">{{ history.film.title }}</a>
-                            </h4>
-                            <p class="text-xs text-gray-500">
-                                {{ history.watch_time|date:"m月d日 H:i" }}
-                            </p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8">
-                    <i class="fas fa-clock text-2xl text-gray-300 mb-2"></i>
-                    <p class="text-gray-500 text-sm">还没有观看记录</p>
-                    <a href="#" class="text-pink-500 text-sm hover:text-pink-600 transition-colors">去观看一些吧</a>
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- 推荐影片 -->
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">为你推荐</h3>
-                    <a href="#" class="text-pink-500 text-sm hover:text-pink-600 transition-colors">
-                        换一批
-                    </a>
-                </div>
-                
-                {% if recommended_films %}
-                <div class="space-y-3">
-                    {% for film in recommended_films|slice:":4" %}
-                    <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="w-10 h-14 rounded overflow-hidden">
-                            {% if film.poster_url %}
-                                <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="w-full h-full object-cover">
-                            {% else %}
-                                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                    <i class="fas fa-film text-xs text-pink-500"></i>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="flex-grow min-w-0">
-                            <h4 class="font-medium text-gray-800 text-sm line-clamp-1 hover:text-pink-500 transition-colors">
-                                <a href="{% url 'film_detail' film.id %}">{{ film.title }}</a>
-                            </h4>
-                            <div class="flex items-center gap-2">
-                                <div class="flex items-center bg-yellow-100 px-1 py-0.5 rounded text-xs">
-                                    <i class="fas fa-star text-yellow-500 text-xs mr-1"></i>
-                                    <span class="font-bold text-yellow-700 text-xs">{{ film.avg_rating|floatformat:1|default:"0.0" }}</span>
-                                </div>
-                                <span class="text-xs text-gray-500">
-                                    {{ film.release_date|date:"Y年"|default:"未知年份" }}
-                                </span>
+                                <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8">
-                    <i class="fas fa-magic text-2xl text-gray-300 mb-2"></i>
-                    <p class="text-gray-500 text-sm">暂无推荐内容</p>
-                    <p class="text-xs text-gray-400 mt-1">观看更多电影获得推荐</p>
-                </div>
-                {% endif %}
+                {% empty %}
+                    <div class="col-12 text-center">
+                        <p class="text-muted">暂无经典影片推荐</p>
+                    </div>
+                {% endfor %}
             </div>
         </div>
-    </section>
-    {% endif %}
+    </div>
+
+    <!-- 推荐系统说明 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-cogs"></i> 智能推荐系统</h5>
+        </div>
+        <div class="card-body">
+            <p>我们的推荐系统基于先进的机器学习算法，分析你的观影偏好、评分行为和社交互动，为你提供精准的影视推荐。</p>
+            <p>系统会持续学习你的偏好，你评价的电影越多，推荐就会越精准。同时，我们也会考虑相似用户的喜好，为你发现可能感兴趣的内容。</p>
+            <div class="text-center mt-3">
+                <a href="{% url 'profile' %}" class="btn btn-primary">完善个人偏好</a>
+                <a href="{% url 'community' %}" class="btn btn-secondary ms-2">加入社区讨论</a>
+            </div>
+        </div>
+    </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// 收藏功能
-document.querySelectorAll('.favorite-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const filmId = this.getAttribute('data-film-id');
-        const icon = this.querySelector('i');
-        
-        fetch(`/toggle_favorite/${filmId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'added') {
-                this.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-                this.classList.add('bg-pink-500', 'text-white');
-                icon.classList.add('animate-pulse');
-                setTimeout(() => icon.classList.remove('animate-pulse'), 1000);
-            } else {
-                this.classList.remove('bg-pink-500', 'text-white');
-                this.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-});
-
-// 观看历史功能
-document.querySelectorAll('.watch-history-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const filmId = this.getAttribute('data-film-id');
-        const originalText = this.innerHTML;
-        
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        this.disabled = true;
-        
-        fetch(`/add_watch_history/${filmId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                this.innerHTML = '<i class="fas fa-check"></i>';
-                this.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-                this.classList.add('bg-green-100', 'text-green-700');
-                
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    this.classList.remove('bg-green-100', 'text-green-700');
-                    this.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-                }, 2000);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            this.innerHTML = originalText;
-            this.disabled = false;
-        });
-    });
-});
-
-// 滚动功能
-document.querySelectorAll('.scroll-left').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const container = this.parentElement.querySelector('.overflow-x-auto');
-        container.scrollBy({ left: -300, behavior: 'smooth' });
-    });
-});
-
-document.querySelectorAll('.scroll-right').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const container = this.parentElement.querySelector('.overflow-x-auto');
-        container.scrollBy({ left: 300, behavior: 'smooth' });
-    });
-});
-
-// 获取CSRF令牌
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// 页面加载动画
-document.addEventListener('DOMContentLoaded', function() {
-    // 添加淡入动画
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-    
-    // 观察所有卡片元素
-    document.querySelectorAll('.bg-white').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
-    });
-    
-    // 立即显示第一个元素
-    setTimeout(() => {
-        const firstCard = document.querySelector('.bg-white');
-        if (firstCard) {
-            firstCard.style.opacity = '1';
-            firstCard.style.transform = 'translateY(0)';
-        }
-    }, 100);
-    
-    // 图片懒加载
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src || img.src;
-                    img.classList.remove('lazy');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-        
-        document.querySelectorAll('img').forEach(img => {
-            imageObserver.observe(img);
-        });
-    }
-});
-</script>
 {% endblock %}

@@ -1,376 +1,104 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    {{ category.name }} - 影视分类
-{% endblock %}
-
 {% block content %}
-<div class="container mt-6">
-    <!-- 分类标题区域 -->
-    <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4">{{ category.name }}</h1>
-        <p class="text-gray-600 text-lg">
-            {% if category.description %}
-                {{ category.description }}
-            {% else %}
-                探索{{ category.name }}的精彩世界
-            {% endif %}
-        </p>
-        <div class="mt-4 inline-flex items-center px-4 py-2 bg-pink-100 text-pink-800 rounded-full">
-            <i class="fas fa-film mr-2"></i>
-            <span>共 {{ films.count }} 部作品</span>
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-th-list"></i> 影视分类</h5>
         </div>
-    </div>
-
-    <!-- 筛选和排序 -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-wrap items-center gap-3">
-                <span class="text-gray-700 font-medium">排序方式：</span>
-                <a href="?sort=rating&order=desc" class="px-3 py-1 text-sm rounded-full {% if sort == 'rating' and order == 'desc' %}bg-pink-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
-                    评分最高
-                </a>
-                <a href="?sort=release_date&order=desc" class="px-3 py-1 text-sm rounded-full {% if sort == 'release_date' and order == 'desc' %}bg-pink-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
-                    最新上映
-                </a>
-                <a href="?sort=title&order=asc" class="px-3 py-1 text-sm rounded-full {% if sort == 'title' and order == 'asc' %}bg-pink-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
-                    名称排序
-                </a>
+        <div class="card-body">
+            <p>探索电视剧、电影、动画等精彩内容，包含最新预告信息</p>
+            
+            <!-- 分类导航 -->
+            <div class="mb-4">
+                <div class="btn-group" role="group">
+                    <a href="{% url 'category' %}" class="btn btn-primary {% if not selected_category %}active{% endif %}">全部</a>
+                    {% for category in categories %}
+                        <a href="{% url 'category_detail' category.id %}" 
+                           class="btn btn-primary {% if selected_category and selected_category.id == category.id %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                    {% endfor %}
+                </div>
             </div>
             
-            <div class="flex items-center gap-3">
-                <span class="text-gray-700 font-medium">显示方式：</span>
-                <a href="?view=grid" class="p-2 rounded-full {% if view == 'grid' %}bg-pink-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
-                    <i class="fas fa-th"></i>
-                </a>
-                <a href="?view=list" class="p-2 rounded-full {% if view == 'list' %}bg-pink-500 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors">
-                    <i class="fas fa-list"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- 电影列表 -->
-    {% if view == 'list' %}
-        <!-- 列表视图 -->
-        <div class="space-y-6">
-            {% for film in films %}
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                <div class="flex flex-col md:flex-row">
-                    <!-- 电影海报 -->
-                    <div class="md:w-1/4">
-                        {% if film.poster %}
-                            <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="w-full h-64 md:h-full object-cover">
-                        {% else %}
-                            <div class="w-full h-64 md:h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                <div class="text-center">
-                                    <i class="fas fa-film text-4xl text-pink-500 mb-2"></i>
-                                    <p class="text-gray-600 text-sm">暂无海报</p>
+            <!-- 影视列表 -->
+            <div class="row">
+                {% for film in films %}
+                    <div class="col-md-3">
+                        <div class="card film-card">
+                            {% if film.poster %}
+                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ film.title }}</h6>
+                                <div class="rating">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= film.rating|floatformat:0 %}
+                                            <i class="fa fa-star"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                                 </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- 电影信息 -->
-                    <div class="md:w-3/4 p-6">
-                        <div class="flex flex-col h-full">
-                            <div class="flex items-start justify-between mb-4">
-                                <h2 class="text-2xl font-bold text-gray-800 hover:text-pink-500 transition-colors">
-                                    <a href="{% url 'film_detail' film.id %}">{{ film.title }}</a>
-                                </h2>
-                                <div class="flex items-center gap-2">
-                                    <!-- 评分 -->
-                                    <div class="flex items-center bg-yellow-100 px-3 py-1 rounded-full">
-                                        <i class="fas fa-star text-yellow-500 mr-1"></i>
-                                        <span class="font-bold text-yellow-700">{{ film.rating|floatformat:1 }}</span>
-                                    </div>
-                                    
-                                    <!-- 收藏按钮 -->
-                                    {% if user.is_authenticated %}
-                                    <button class="favorite-btn p-2 rounded-full {% if film in user.favorite_films.all %}bg-pink-500 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %} transition-colors" 
-                                            data-film-id="{{ film.id }}">
-                                        <i class="fas fa-heart"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
-                                <div>
-                                    <span class="font-medium text-gray-700">导演：</span>
-                                    {{ film.director|default:"未知" }}
-                                </div>
-                                <div>
-                                    <span class="font-medium text-gray-700">演员：</span>
-                                    {{ film.actors|default:"未知"|truncatechars:30 }}
-                                </div>
-                                <div>
-                                    <span class="font-medium text-gray-700">上映日期：</span>
-                                    {{ film.release_date|date:"Y年m月d日"|default:"未知" }}
-                                </div>
-                                <div>
-                                    <span class="font-medium text-gray-700">评分人数：</span>
-                                    {{ film.rating_count }}
-                                </div>
-                            </div>
-                            
-                            <div class="text-gray-700 mb-4 flex-grow">
-                                <h3 class="font-medium text-gray-800 mb-2">剧情简介：</h3>
-                                <p class="line-clamp-3">{{ film.description|default:"暂无剧情简介" }}</p>
-                            </div>
-                            
-                            <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-100">
-                                <!-- 分类标签 -->
-                                <div class="flex flex-wrap gap-2">
-                                    {% for cat in film.categories.all %}
-                                    <span class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                                        {{ cat.name }}
-                                    </span>
+                                <div class="mt-2">
+                                    {% for category in film.categories.all|slice:":2" %}
+                                        <span class="badge bg-secondary">{{ category.name }}</span>
                                     {% endfor %}
                                 </div>
-                                
-                                <!-- 操作按钮 -->
-                                <div class="ml-auto flex items-center gap-3">
-                                    <a href="{% url 'film_detail' film.id %}" class="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium">
-                                        查看详情
-                                    </a>
-                                    <button class="watch-history-btn px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm" 
-                                            data-film-id="{{ film.id }}">
-                                        <i class="fas fa-play mr-1"></i>
-                                        标记观看
-                                    </button>
-                                </div>
+                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary mt-2">查看详情</a>
                             </div>
                         </div>
                     </div>
-                </div>
+                {% empty %}
+                    <div class="col-12 text-center">
+                        <p class="text-muted">暂无影视作品</p>
+                    </div>
+                {% endfor %}
             </div>
-            {% empty %}
-            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
-                <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-medium text-gray-700 mb-2">暂无相关影视作品</h3>
-                <p class="text-gray-500">尝试其他分类或搜索关键词</p>
-            </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <!-- 网格视图（默认） -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {% for film in films %}
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-                <!-- 电影海报 -->
-                <div class="relative overflow-hidden">
-                    {% if film.poster %}
-                        <img src="{{ film.poster.url }}" alt="{{ film.title }}" 
-                             class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300">
-                    {% else %}
-                        <div class="w-full h-64 bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                            <div class="text-center">
-                                <i class="fas fa-film text-4xl text-pink-500 mb-2"></i>
-                                <p class="text-gray-600 text-sm">暂无海报</p>
-                            </div>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- 悬停操作按钮 -->
-                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        {% if user.is_authenticated %}
-                        <button class="favorite-btn p-2 bg-white bg-opacity-90 text-pink-500 rounded-full hover:bg-white transition-colors" 
-                                data-film-id="{{ film.id }}">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                        <button class="watch-history-btn p-2 bg-white bg-opacity-90 text-gray-700 rounded-full hover:bg-white transition-colors" 
-                                data-film-id="{{ film.id }}">
-                            <i class="fas fa-play"></i>
-                        </button>
+            
+            <!-- 分页 -->
+            {% if films.has_other_pages %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if films.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ films.previous_page_number }}">上一页</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">上一页</span>
+                            </li>
                         {% endif %}
-                        <a href="{% url 'film_detail' film.id %}" class="p-2 bg-white bg-opacity-90 text-gray-700 rounded-full hover:bg-white transition-colors">
-                            <i class="fas fa-info"></i>
-                        </a>
-                    </div>
-                    
-                    <!-- 评分标签 -->
-                    <div class="absolute top-3 right-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                        {{ film.rating|floatformat:1 }}
-                    </div>
-                </div>
-                
-                <!-- 电影信息 -->
-                <div class="p-4">
-                    <h3 class="font-bold text-gray-800 mb-2 line-clamp-1 hover:text-pink-500 transition-colors">
-                        <a href="{% url 'film_detail' film.id %}">{{ film.title }}</a>
-                    </h3>
-                    <p class="text-sm text-gray-600 mb-2 line-clamp-1">
-                        {{ film.director|default:"未知导演" }}
-                    </p>
-                    <p class="text-xs text-gray-500 mb-3">
-                        {{ film.release_date|date:"Y年"|default:"未知年份" }}
-                    </p>
-                    
-                    <!-- 分类标签 -->
-                    <div class="flex flex-wrap gap-1">
-                        {% for cat in film.categories.all|slice:":2" %}
-                        <span class="px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded-full">
-                            {{ cat.name }}
-                        </span>
+                        
+                        {% for i in films.paginator.page_range %}
+                            {% if films.number == i %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                </li>
+                            {% endif %}
                         {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-span-full text-center py-12 bg-white rounded-xl shadow-sm">
-                <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-medium text-gray-700 mb-2">暂无相关影视作品</h3>
-                <p class="text-gray-500">尝试其他分类或搜索关键词</p>
-            </div>
-            {% endfor %}
+                        
+                        {% if films.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ films.next_page_number }}">下一页</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">下一页</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
         </div>
-    {% endif %}
-
-    <!-- 分页 -->
-    {% if is_paginated %}
-    <div class="mt-8 flex justify-center">
-        <nav class="inline-flex rounded-md shadow-sm">
-            {% if page_obj.has_previous %}
-            <a href="?page=1{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.order %}&order={{ request.GET.order }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}" 
-               class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 transition-colors">
-                首页
-            </a>
-            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.order %}&order={{ request.GET.order }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}" 
-               class="px-3 py-2 text-gray-700 bg-white border-t border-b border-gray-300 hover:bg-gray-50 transition-colors">
-                上一页
-            </a>
-            {% endif %}
-
-            {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                <span class="px-3 py-2 text-white bg-pink-500 border border-pink-500">
-                    {{ num }}
-                </span>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.order %}&order={{ request.GET.order }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}" 
-                   class="px-3 py-2 text-gray-700 bg-white border-t border-b border-gray-300 hover:bg-gray-50 transition-colors">
-                    {{ num }}
-                </a>
-                {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.order %}&order={{ request.GET.order }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}" 
-               class="px-3 py-2 text-gray-700 bg-white border-t border-b border-gray-300 hover:bg-gray-50 transition-colors">
-                下一页
-            </a>
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.order %}&order={{ request.GET.order }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}" 
-               class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 transition-colors">
-                末页
-            </a>
-            {% endif %}
-        </nav>
     </div>
-    {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// 收藏功能
-document.querySelectorAll('.favorite-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const filmId = this.getAttribute('data-film-id');
-        const icon = this.querySelector('i');
-        
-        fetch(`/toggle_favorite/${filmId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'added') {
-                this.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-                this.classList.add('bg-pink-500', 'text-white');
-                icon.classList.add('animate-pulse');
-                setTimeout(() => icon.classList.remove('animate-pulse'), 1000);
-            } else {
-                this.classList.remove('bg-pink-500', 'text-white');
-                this.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-});
-
-// 观看历史功能
-document.querySelectorAll('.watch-history-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const filmId = this.getAttribute('data-film-id');
-        const originalText = this.innerHTML;
-        
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        this.disabled = true;
-        
-        fetch(`/add_watch_history/${filmId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                this.innerHTML = '<i class="fas fa-check"></i> 已标记';
-                this.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-                this.classList.add('bg-green-100', 'text-green-700');
-                
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    this.classList.remove('bg-green-100', 'text-green-700');
-                    this.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-                }, 2000);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            this.innerHTML = originalText;
-            this.disabled = false;
-        });
-    });
-});
-
-// 获取CSRF令牌
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// 页面加载完成后的初始化
-document.addEventListener('DOMContentLoaded', function() {
-    // 添加平滑滚动
-    document.documentElement.style.scrollBehavior = 'smooth';
-    
-    // 初始化工具提示（如果需要）
-    if (typeof bootstrap !== 'undefined') {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    }
-});
-</script>
 {% endblock %}

@@ -1,22 +1,8 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from .models import (
-    Category, Film, WatchHistory,
-    Favorite, Review, User
+    Category, Film, WatchHistory, 
+    Favorite, Review, UserProfile
 )
-
-@admin.register(User)
-class CustomUserAdmin(UserAdmin):
-    """自定义用户管理"""
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'created_at')
-    search_fields = ('username', 'email', 'first_name', 'last_name', 'bio')
-    list_filter = ('is_staff', 'is_active', 'is_superuser', 'created_at')
-    fieldsets = UserAdmin.fieldsets + (
-        ('个人资料', {
-            'fields': ('bio', 'birth_date', 'avatar', 'favorite_categories')
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -32,12 +18,12 @@ class FilmAdmin(admin.ModelAdmin):
     search_fields = ('title', 'director', 'actors', 'description')
     list_filter = ('categories', 'release_date', 'created_at')
     filter_horizontal = ('categories',)
-    readonly_fields = ('rating', 'rating_count', 'created_at', 'updated_at')
+    readonly_fields = ('rating', 'rating_count')
 
 @admin.register(WatchHistory)
 class WatchHistoryAdmin(admin.ModelAdmin):
     """观看历史管理"""
-    list_display = ('user', 'film', 'watch_time')
+    list_display = ('user', 'film', 'watch_time', 'watch_duration')
     search_fields = ('user__username', 'film__title')
     list_filter = ('watch_time',)
     date_hierarchy = 'watch_time'
@@ -53,7 +39,15 @@ class FavoriteAdmin(admin.ModelAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     """评论管理"""
-    list_display = ('user', 'film', 'rating', 'created_at')
-    search_fields = ('user__username', 'film__title', 'comment')
+    list_display = ('user', 'film', 'rating', 'created_at', 'likes')
+    search_fields = ('user__username', 'film__title', 'content')
     list_filter = ('rating', 'created_at')
     date_hierarchy = 'created_at'
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    """用户资料管理"""
+    list_display = ('user', 'birth_date', 'created_at')
+    search_fields = ('user__username', 'user__email', 'bio')
+    list_filter = ('created_at',)
+    filter_horizontal = ('favorite_categories',)

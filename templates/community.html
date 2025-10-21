@@ -1,70 +1,191 @@
 {% extends 'base.html' %}
 
-{% block title %}社区讨论 - 影视推荐系统{% endblock %}
-
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">🎬 社区讨论</h2>
-    
-    <!-- 活跃用户 -->
+<div class="container">
     <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">活跃用户</h4>
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-comments"></i> 电影社区</h5>
         </div>
         <div class="card-body">
             <div class="row">
-                {% for user in active_users %}
-                <div class="col-md-2 mb-3">
-                    <div class="text-center">
-                        {% if user.avatar %}
-                        <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="rounded-circle img-thumbnail mb-2" style="width: 60px; height: 60px;">
-                        {% else %}
-                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
-                            {{ user.username|first|upper }}
-                        </div>
-                        {% endif %}
-                        <h5 class="font-weight-bold">{{ user.username }}</h5>
-                        <p class="text-muted text-sm">评论: {{ user.review_count }}条</p>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12">
-                    <p class="text-center text-muted">暂无活跃用户</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    
-    <!-- 热门评论 -->
-    <div class="card">
-        <div class="card-header bg-success text-white">
-            <h4 class="mb-0">最新评论</h4>
-        </div>
-        <div class="card-body">
-            {% for review in popular_reviews %}
-            <div class="media mb-4">
-                <img src="{% if review.user.avatar %}{{ review.user.avatar.url }}{% else %}/static/images/default_avatar.jpg{% endif %}" 
-                     alt="{{ review.user.username }}" class="mr-3 rounded-circle" style="width: 50px; height: 50px;">
-                <div class="media-body">
-                    <h5 class="mt-0">
-                        <a href="{% url 'profile' review.user.username %}" class="text-primary">{{ review.user.username }}</a>
-                        <small class="text-muted ml-2">{{ review.created_at|date:"Y-m-d H:i" }}</small>
-                    </h5>
-                    <p class="mb-1">
-                        <a href="{% url 'film_detail' review.film.id %}" class="text-dark">{{ review.film.title }}</a>
-                    </p>
-                    <div class="mb-1">
-                        {% for i in "12345"|make_list %}
-                        <span class="text-warning {% if forloop.counter > review.rating %}text-muted{% endif %}">★</span>
+                <!-- 热门讨论 -->
+                <div class="col-md-8">
+                    <h4 class="mb-4"><i class="fa fa-fire"></i> 热门讨论</h4>
+                    
+                    {% if latest_reviews %}
+                        {% for review in latest_reviews %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="d-flex align-items-center">
+                                            {% if review.user.profile.avatar %}
+                                                <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.username }}" class="rounded-circle" width="40" height="40">
+                                            {% else %}
+                                                <img src="https://via.placeholder.com/40?text={{ review.user.username|first }}" alt="{{ review.user.username }}" class="rounded-circle" width="40" height="40">
+                                            {% endif %}
+                                            <div class="ms-3">
+                                                <h6 class="mb-0">{{ review.user.username }}</h6>
+                                                <small class="text-muted">{{ review.created_at|date:"Y-m-d H:i" }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="rating">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= review.rating %}
+                                                    <i class="fa fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa fa-star-o"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    <h5 class="card-title">
+                                        <a href="{% url 'film_detail' review.film.id %}" class="text-decoration-none text-dark">
+                                            {{ review.film.title }}
+                                        </a>
+                                    </h5>
+                                    
+                                    <p class="card-text">{{ review.content }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-thumbs-up"></i> 点赞 ({{ review.likes }})
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2">
+                                                <i class="fa fa-reply"></i> 回复
+                                            </button>
+                                        </div>
+                                        {% if user == review.user %}
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
                         {% endfor %}
+                        
+                        <!-- 分页 -->
+                        {% if latest_reviews.has_other_pages %}
+                            <nav class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if latest_reviews.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ latest_reviews.previous_page_number }}">上一页</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">上一页</span>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for i in latest_reviews.paginator.page_range %}
+                                        {% if latest_reviews.number == i %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if latest_reviews.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ latest_reviews.next_page_number }}">下一页</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">下一页</span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fa fa-comments-o fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">暂无讨论内容</h4>
+                            <p class="text-muted mt-2">快来发表你的第一条评论吧！</p>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'category' %}" class="btn btn-primary mt-3">去评分</a>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={% url 'community' %}" class="btn btn-primary mt-3">登录参与讨论</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- 侧边栏 -->
+                <div class="col-md-4">
+                    <!-- 热门影视 -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fa fa-fire"></i> 热门影视</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for film in film_rankings|slice:":5" %}
+                                    <a href="{% url 'film_detail' film.id %}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex align-items-center">
+                                            {% if film.poster %}
+                                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" width="50" height="75" class="rounded me-3">
+                                            {% else %}
+                                                <img src="https://via.placeholder.com/50x75?text=No+Poster" alt="{{ film.title }}" class="rounded me-3">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0">{{ film.title }}</h6>
+                                                <div class="rating">
+                                                    {% for i in "12345"|make_list %}
+                                                        {% if forloop.counter <= film.rating|floatformat:0 %}
+                                                            <i class="fa fa-star"></i>
+                                                        {% else %}
+                                                            <i class="fa fa-star-o"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                {% empty %}
+                                    <div class="text-center text-muted py-3">暂无热门影视</div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-                    <p class="text-muted">{{ review.comment }}</p>
+                    
+                    <!-- 活跃用户 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fa fa-users"></i> 活跃用户</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for review in latest_reviews|slice:":5" %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex align-items-center">
+                                            {% if review.user.profile.avatar %}
+                                                <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.username }}" class="rounded-circle" width="40" height="40">
+                                            {% else %}
+                                                <img src="https://via.placeholder.com/40?text={{ review.user.username|first }}" alt="{{ review.user.username }}" class="rounded-circle" width="40" height="40">
+                                            {% endif %}
+                                            <div class="ms-3">
+                                                <h6 class="mb-0">{{ review.user.username }}</h6>
+                                                <small class="text-muted">最近评论: {{ review.created_at|date:"m-d" }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div class="text-center text-muted py-3">暂无活跃用户</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            {% empty %}
-            <p class="text-center text-muted">暂无评论</p>
-            {% endfor %}
         </div>
     </div>
 </div>
