@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-center"><i class="fa fa-share"></i> 分享电影</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h2 class="mb-2">{{ film.title }}</h2>
+                    {% if film.poster %}
+                        <img src="{{ film.poster.url }}" alt="{{ film.title }}" width="200" height="300" class="rounded mb-3">
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">分享链接</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{ share_url }}" readonly id="shareUrl">
+                        <button class="btn btn-primary" type="button" onclick="copyToClipboard()">
+                            <i class="fa fa-copy"></i> 复制
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="mb-2">分享到社交媒体</h6>
+                    <div class="d-flex gap-2">
+                        <a href="https://twitter.com/intent/tweet?text=快来看看这部电影：{{ film.title }}&url={{ share_url }}" 
+                           class="btn btn-primary flex-1" target="_blank">
+                            <i class="fa fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url }}" 
+                           class="btn btn-primary flex-1" target="_blank">
+                            <i class="fa fa-facebook"></i> Facebook
+                        </a>
+                        <a href="https://www.instagram.com/" 
+                           class="btn btn-primary flex-1" target="_blank">
+                            <i class="fa fa-instagram"></i> Instagram
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="mb-2">通过邮件分享</h6>
+                    <a href="mailto:?subject=推荐电影：{{ film.title }}&body=我想向你推荐这部电影：{{ film.title }}。观看链接：{{ share_url }}" 
+                       class="btn btn-primary w-100">
+                        <i class="fa fa-envelope"></i> 发送邮件
+                    </a>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'film_detail' film.id %}" class="btn btn-secondary">返回电影详情</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard() {
+    const copyText = document.getElementById("shareUrl");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    
+    showMessage("链接已复制到剪贴板！", "success");
+}
+
+function showMessage(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-20 right-3 z-50`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}
