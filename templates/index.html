@@ -10,34 +10,34 @@
         <div class="card-body">
             <div class="row">
                 {% for film in popular_films %}
-                    <div class="col-md-4">
-                        <div class="card film-card">
-                            {% if film.poster %}
-                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% else %}
-                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% endif %}
-                            <div class="card-body">
-                                <h6 class="card-title">{{ film.title }}</h6>
-                                <div class="rating">
-                                    {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= film.rating|floatformat:0 %}
-                                            <i class="fa fa-star"></i>
-                                        {% else %}
-                                            <i class="fa fa-star-o"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
-                                </div>
-                                <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
-                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        {% if film.poster_url %}
+                            <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" height="200">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= film.rating|floatformat:0 %}
+                                        <i class="fa fa-star"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                             </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                         </div>
                     </div>
+                </div>
                 {% empty %}
-                    <div class="col-12 text-center">
-                        <p class="text-muted">暂无热门推荐内容</p>
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无热门推荐内容</p>
+                </div>
                 {% endfor %}
             </div>
         </div>
@@ -51,34 +51,34 @@
         <div class="card-body">
             <div class="row">
                 {% for film in new_films %}
-                    <div class="col-md-4">
-                        <div class="card film-card">
-                            {% if film.poster %}
-                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% else %}
-                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% endif %}
-                            <div class="card-body">
-                                <h6 class="card-title">{{ film.title }}</h6>
-                                <div class="rating">
-                                    {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= film.rating|floatformat:0 %}
-                                            <i class="fa fa-star"></i>
-                                        {% else %}
-                                            <i class="fa fa-star-o"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
-                                </div>
-                                <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
-                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        {% if film.poster_url %}
+                            <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" height="200">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= film.rating|floatformat:0 %}
+                                        <i class="fa fa-star"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                             </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                         </div>
                     </div>
+                </div>
                 {% empty %}
-                    <div class="col-12 text-center">
-                        <p class="text-muted">暂无新片上映信息</p>
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无新片上映信息</p>
+                </div>
                 {% endfor %}
             </div>
         </div>
@@ -92,34 +92,34 @@
         <div class="card-body">
             <div class="row">
                 {% for film in classic_films %}
-                    <div class="col-md-4">
-                        <div class="card film-card">
-                            {% if film.poster %}
-                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% else %}
-                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% endif %}
-                            <div class="card-body">
-                                <h6 class="card-title">{{ film.title }}</h6>
-                                <div class="rating">
-                                    {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= film.rating|floatformat:0 %}
-                                            <i class="fa fa-star"></i>
-                                        {% else %}
-                                            <i class="fa fa-star-o"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
-                                </div>
-                                <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
-                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        {% if film.poster_url %}
+                            <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" height="200">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= film.rating|floatformat:0 %}
+                                        <i class="fa fa-star"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                             </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                         </div>
                     </div>
+                </div>
                 {% empty %}
-                    <div class="col-12 text-center">
-                        <p class="text-muted">暂无经典影片推荐</p>
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无经典影片推荐</p>
+                </div>
                 {% endfor %}
             </div>
         </div>

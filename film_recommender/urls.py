@@ -24,5 +24,9 @@ urlpatterns = [
     path('', include('main.urls')),  # 包含main应用的URL
 ]
 
+# 开发环境下配置媒体文件和静态文件的路由
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    # 配置媒体文件路由
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # 配置静态文件路由
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

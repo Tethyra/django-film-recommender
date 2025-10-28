@@ -5,10 +5,10 @@
     <!-- 电影海报 -->
     <div class="col-md-4">
         <div class="card">
-            {% if film.poster %}
-                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top film-poster">
+            {% if film.poster_url %}
+                <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" style="height: 400px; object-fit: cover;">
             {% else %}
-                <img src="https://via.placeholder.com/400x600?text=No+Poster" alt="{{ film.title }}" class="card-img-top film-poster">
+                <img src="https://via.placeholder.com/300x450?text=No+Poster" alt="{{ film.title }}" class="card-img-top" style="height: 400px; object-fit: cover;">
             {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ film.title }}</h5>
@@ -24,28 +24,28 @@
                 </div>
                 <div class="mt-3">
                     {% if user.is_authenticated %}
-                        <form action="{% url 'toggle_favorite' film.id %}" method="post" class="d-inline">
-                            {% csrf_token %}
-                            {% if is_favorited %}
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="fa fa-heart"></i> 取消收藏
-                                </button>
-                            {% else %}
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fa fa-heart-o"></i> 收藏
-                                </button>
-                            {% endif %}
-                        </form>
-                        <a href="{% url 'add_review' film.id %}" class="btn btn-success btn-sm ms-2">
-                            <i class="fa fa-comment"></i> 写评论
-                        </a>
+                    <form action="{% url 'toggle_favorite' film.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        {% if is_favorited %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fa fa-heart"></i> 取消收藏
+                        </button>
+                        {% else %}
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fa fa-heart-o"></i> 收藏
+                        </button>
+                        {% endif %}
+                    </form>
+                    <a href="{% url 'add_review' film.id %}" class="btn btn-success btn-sm ms-2">
+                        <i class="fa fa-comment"></i> 写评论
+                    </a>
                     {% else %}
-                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
-                            <i class="fa fa-heart-o"></i> 登录收藏
-                        </a>
-                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-success btn-sm ms-2">
-                            <i class="fa fa-comment"></i> 登录评论
-                        </a>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
+                        <i class="fa fa-heart-o"></i> 登录收藏
+                    </a>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-success btn-sm ms-2">
+                        <i class="fa fa-comment"></i> 登录评论
+                    </a>
                     {% endif %}
                 </div>
             </div>
@@ -57,7 +57,6 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title">{{ film.title }}</h2>
-                
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <strong>导演:</strong> {{ film.director|default:"未知" }}<br>
@@ -65,18 +64,17 @@
                         <strong>上映日期:</strong> {{ film.release_date|date:"Y年m月d日"|default:"未知" }}<br>
                     </div>
                     <div class="col-md-6">
-                        <strong>分类:</strong> 
+                        <strong>分类:</strong>
                         {% for category in film.categories.all %}
-                            <span class="badge bg-primary">{{ category.name }}</span>
+                        <span class="badge bg-primary">{{ category.name }}</span>
                         {% empty %}
-                            暂无分类
+                        暂无分类
                         {% endfor %}
                         <br>
                         <strong>创建时间:</strong> {{ film.created_at|date:"Y年m月d日" }}<br>
                         <strong>更新时间:</strong> {{ film.updated_at|date:"Y年m月d日" }}<br>
                     </div>
                 </div>
-
                 <div class="card mb-3">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fa fa-info-circle"></i> 剧情简介</h5>
@@ -93,36 +91,33 @@
                     </div>
                     <div class="card-body">
                         {% if reviews %}
-                            {% for review in reviews %}
-                                <div class="mb-4 p-3 bg-light rounded">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <h6 class="mb-0">{{ review.user.username }}</h6>
-                                        <small class="text-muted">{{ review.created_at|date:"Y-m-d H:i" }}</small>
-                                    </div>
-                                    <div class="rating mt-1">
-                                        {% for i in "12345"|make_list %}
-                                            {% if forloop.counter <= review.rating %}
-                                                <i class="fa fa-star"></i>
-                                            {% else %}
-                                                <i class="fa fa-star-o"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    <p class="mt-2">{{ review.content }}</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fa fa-thumbs-up"></i> 点赞 ({{ review.likes }})
-                                        </button>
-                                        {% if user == review.user %}
-                                            <button class="btn btn-sm btn-outline-danger">
-                                                <i class="fa fa-trash"></i> 删除
-                                            </button>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
+                        {% for review in reviews %}
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="mb-0">{{ review.user.username }}</h6>
+                                <small class="text-muted">{{ review.created_at|date:"Y-m-d H:i" }}</small>
+                            </div>
+                            <div class="rating mt-1">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fa fa-star"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="mt-2">{{ review.content }}</p>
+                            <div class="d-flex justify-content-end">
+                                {% if user == review.user %}
+                                <a href="{% url 'delete_review' review.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fa fa-trash"></i> 删除
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
                         {% else %}
-                            <p class="text-center text-muted">暂无评论，快来抢沙发吧！</p>
+                        <p class="text-center text-muted">暂无评论，快来抢沙发吧！</p>
                         {% endif %}
                     </div>
                 </div>

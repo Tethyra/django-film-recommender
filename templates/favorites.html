@@ -2,170 +2,134 @@
 
 {% block content %}
 <div class="container">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fa fa-heart"></i> 我的收藏</h5>
-        </div>
-        <div class="card-body">
-            {% if favorites %}
-                <div class="row">
-                    {% for favorite in favorites %}
-                        <div class="col-md-3">
-                            <div class="card film-card">
-                                {% if favorite.film.poster %}
-                                    <img src="{{ favorite.film.poster.url }}" alt="{{ favorite.film.title }}" class="card-img-top" height="250">
-                                {% else %}
-                                    <img src="https://via.placeholder.com/300x250?text=No+Poster" alt="{{ favorite.film.title }}" class="card-img-top" height="250">
-                                {% endif %}
-                                <div class="card-body">
-                                    <h6 class="card-title">{{ favorite.film.title }}</h6>
-                                    <div class="rating">
-                                        {% for i in "12345"|make_list %}
-                                            {% if forloop.counter <= favorite.film.rating|floatformat:0 %}
-                                                <i class="fa fa-star"></i>
-                                            {% else %}
-                                                <i class="fa fa-star-o"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                        <span class="ms-1">{{ favorite.film.rating|floatformat:1 }}</span>
-                                    </div>
-                                    <div class="mt-2">
-                                        {% for category in favorite.film.categories.all|slice:":2" %}
-                                            <span class="badge badge-primary">{{ category.name }}</span>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="mt-2">
-                                        <small class="text-muted">收藏时间: {{ favorite.created_at|date:"Y-m-d" }}</small>
-                                    </div>
-                                    <div class="d-flex gap-2 mt-2">
-                                        <a href="{% url 'film_detail' favorite.film.id %}" class="btn btn-primary flex-1">查看详情</a>
-                                        <button class="btn btn-danger remove-favorite" data-film-id="{{ favorite.film.id }}">
-                                            <i class="fa fa-heart"></i>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+            <li class="breadcrumb-item active" aria-current="page">我的收藏</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4"><i class="fa fa-heart"></i> 我的收藏</h2>
+
+    {% if user.is_authenticated %}
+        {% if favorites %}
+            <div class="row">
+                {% for favorite in favorites %}
+                    {% with film=favorite.film %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card film-card h-100">
+                            {% if film.poster_url %}
+                                <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" height="180">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="180">
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ film.title }}</h6>
+                                <div class="rating">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= film.rating|floatformat:0 %}
+                                            <i class="fa fa-star"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                                </div>
+                                <p class="card-text text-muted text-sm mt-2">
+                                    收藏时间: {{ favorite.created_at|date:"Y年m月d日" }}
+                                </p>
+                                <div class="d-flex gap-2 mt-3">
+                                    <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary flex-fill">查看详情</a>
+                                    <form action="{% url 'toggle_favorite' film.id %}" method="post" class="flex-fill">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger w-100">
+                                            <i class="fa fa-heart"></i> 取消收藏
                                         </button>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-                
-                <!-- 分页 -->
-                {% if favorites.has_other_pages %}
-                    <nav class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            {% if favorites.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ favorites.previous_page_number }}">上一页</a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">上一页</span>
-                                </li>
-                            {% endif %}
-                            
-                            {% for i in favorites.paginator.page_range %}
-                                {% if favorites.number == i %}
-                                    <li class="page-item active">
-                                        <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
-                                    </li>
-                                {% else %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                            
-                            {% if favorites.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ favorites.next_page_number }}">下一页</a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">下一页</span>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                {% endif %}
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="fa fa-heart-o fa-3x text-muted mb-3"></i>
-                    <h4 class="text-muted">暂无收藏内容</h4>
-                    <p class="text-muted mt-2">快去收藏你喜欢的电影吧！</p>
-                    <a href="{% url 'category' %}" class="btn btn-primary mt-3">浏览影视</a>
-                </div>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+
+            <!-- 分页 -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; 第一页</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            第 {{ page_obj.number }} 页，共 {{ page_obj.paginator.num_pages }} 页
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">最后一页 &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
             {% endif %}
+        {% else %}
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fa fa-heart-o fa-5x text-muted mb-4"></i>
+                    <h5 class="card-title">您还没有收藏任何电影</h5>
+                    <p class="card-text text-muted">快去发现喜欢的电影并收藏吧！</p>
+                    <a href="{% url 'index' %}" class="btn btn-primary">
+                        <i class="fa fa-home"></i> 返回首页
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fa fa-lock fa-5x text-muted mb-4"></i>
+                <h5 class="card-title">请先登录</h5>
+                <p class="card-text text-muted">登录后才能查看您的收藏列表</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">
+                        <i class="fa fa-sign-in"></i> 登录
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-secondary">
+                        <i class="fa fa-user-plus"></i> 注册
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-// 取消收藏功能
-document.querySelectorAll('.remove-favorite').forEach(button => {
-    button.addEventListener('click', function() {
-        const filmId = this.getAttribute('data-film-id');
-        const button = this;
-        
-        fetch(`/film/${filmId}/favorite/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'removed') {
-                // 移除卡片
-                const card = button.closest('.col-md-3');
-                card.style.opacity = '0';
-                setTimeout(() => {
-                    card.remove();
-                }, 300);
-                
-                // 显示消息
-                showMessage(data.message, 'success');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showMessage('操作失败，请重试', 'error');
-        });
-    });
-});
-
-// 获取CSRF令牌
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+{% block extra_css %}
+<style>
+    .film-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    return cookieValue;
-}
-
-// 显示消息
-function showMessage(message, type) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-20 right-3 z-50`;
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 3000);
-}
-</script>
+    .film-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .card-img-top {
+        object-fit: cover;
+    }
+    .rating {
+        color: #FFD700;
+    }
+</style>
 {% endblock %}

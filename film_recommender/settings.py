@@ -132,3 +132,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'index'
+
+# 在文件末尾添加TMDB API配置
+TMDB_API_KEY = '8d60f94ecd468445247d2e956f979364'  # 请替换为您的TMDB API密钥
+TMDB_API_URL = 'https://api.themoviedb.org/3'
+TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p'
+
+# 海报尺寸配置
+TMDB_POSTER_SIZES = {
+    'small': 'w185',
+    'medium': 'w342',
+    'large': 'w500',
+    'original': 'original'
+}
+
+# 静态文件配置
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    'G:\\film_project\\static',  # 只保留用户指定的路径
+]
+
+# 海报存储路径（直接存储到G盘）
+POSTER_STORAGE_PATH = 'G:\\film_project\\static\\posters'

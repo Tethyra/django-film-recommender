@@ -2,102 +2,78 @@
 
 {% block content %}
 <div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+            <li class="breadcrumb-item active" aria-current="page">影视分类</li>
+        </ol>
+    </nav>
+
     <div class="card mb-4">
         <div class="card-header">
             <h5 class="mb-0"><i class="fa fa-th-list"></i> 影视分类</h5>
         </div>
         <div class="card-body">
-            <p>探索电视剧、电影、动画等精彩内容，包含最新预告信息</p>
-            
-            <!-- 分类导航 -->
-            <div class="mb-4">
-                <div class="btn-group" role="group">
-                    <a href="{% url 'category' %}" class="btn btn-primary {% if not selected_category %}active{% endif %}">全部</a>
-                    {% for category in categories %}
-                        <a href="{% url 'category_detail' category.id %}" 
-                           class="btn btn-primary {% if selected_category and selected_category.id == category.id %}active{% endif %}">
-                            {{ category.name }}
-                        </a>
-                    {% endfor %}
-                </div>
-            </div>
-            
-            <!-- 影视列表 -->
             <div class="row">
-                {% for film in films %}
-                    <div class="col-md-3">
-                        <div class="card film-card">
-                            {% if film.poster %}
-                                <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% else %}
-                                <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
-                            {% endif %}
-                            <div class="card-body">
-                                <h6 class="card-title">{{ film.title }}</h6>
-                                <div class="rating">
-                                    {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= film.rating|floatformat:0 %}
-                                            <i class="fa fa-star"></i>
-                                        {% else %}
-                                            <i class="fa fa-star-o"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
-                                </div>
-                                <div class="mt-2">
-                                    {% for category in film.categories.all|slice:":2" %}
-                                        <span class="badge bg-secondary">{{ category.name }}</span>
-                                    {% endfor %}
-                                </div>
-                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary mt-2">查看详情</a>
-                            </div>
+                {% for category in categories %}
+                <div class="col-md-4 mb-4">
+                    <div class="card category-card">
+                        <div class="card-body text-center">
+                            <i class="fa fa-film fa-3x mb-3 text-primary"></i>
+                            <h5 class="card-title">{{ category.name }}</h5>
+                            <p class="card-text text-muted">{{ category.description|truncatechars:50|default:"暂无描述" }}</p>
+                            <a href="{% url 'category_detail' category.id %}" class="btn btn-primary">
+                                浏览内容 ({{ category.films.count }}部)
+                            </a>
                         </div>
                     </div>
+                </div>
                 {% empty %}
-                    <div class="col-12 text-center">
-                        <p class="text-muted">暂无影视作品</p>
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无分类数据</p>
+                </div>
                 {% endfor %}
             </div>
-            
-            <!-- 分页 -->
-            {% if films.has_other_pages %}
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        {% if films.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ films.previous_page_number }}">上一页</a>
-                            </li>
+        </div>
+    </div>
+
+    <!-- 热门电影推荐 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-fire"></i> 热门电影推荐</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for film in popular_films %}
+                <div class="col-md-3 mb-4">
+                    <div class="card film-card">
+                        {% if film.poster_url %}
+                            <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" height="150">
                         {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">上一页</span>
-                            </li>
+                            <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="150">
                         {% endif %}
-                        
-                        {% for i in films.paginator.page_range %}
-                            {% if films.number == i %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
-                                </li>
-                            {% else %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if films.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ films.next_page_number }}">下一页</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">下一页</span>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= film.rating|floatformat:0 %}
+                                        <i class="fa fa-star"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                            </div>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary w-100 mt-2">查看详情</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无热门电影推荐</p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
