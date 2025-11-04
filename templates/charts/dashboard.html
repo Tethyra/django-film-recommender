@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}数据可视化{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>数据可视化仪表板</h1>
+    <p>图表功能正在加载...</p>
+
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

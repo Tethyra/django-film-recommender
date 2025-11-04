@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',  # 注册我们的应用
+    'main.apps.MainConfig',
+    'charts.apps.ChartsConfig',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,6 @@ STATICFILES_DIRS = [
 
 # 海报存储路径（直接存储到G盘）
 POSTER_STORAGE_PATH = 'G:\\film_project\\static\\posters'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

@@ -5,3 +5,14 @@ update_posters_from_tmdb.py
 
 
 sync_static_to_g_drive.py
+
+
+
+# 第一步：生成基础数据
+python generate_rich_data.py
+
+# 第二步：增强排行榜和社区功能
+python enhance_rankings_community.py
+
+# 第三步：启动服务器验证
+python manage.py runserver
