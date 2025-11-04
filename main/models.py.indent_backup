@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import os
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -26,8 +28,13 @@ class Film(models.Model):
     actors = models.CharField(max_length=500, blank=True, null=True, verbose_name='演员')
     release_date = models.DateField(blank=True, null=True, verbose_name='上映日期')
     description = models.TextField(blank=True, null=True, verbose_name='剧情描述')
+    # 保存海报的相对路径（相对于static目录）
+    poster_path = models.CharField(max_length=255, blank=True, null=True, verbose_name='海报路径')
     rating = models.FloatField(default=0, verbose_name='评分')
     rating_count = models.IntegerField(default=0, verbose_name='评分人数')
+    # TMDB相关字段
+    tmdb_id = models.IntegerField(blank=True, null=True, verbose_name='TMDB电影ID')
+    tmdb_rating = models.FloatField(blank=True, null=True, verbose_name='TMDB评分')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
 
@@ -36,8 +43,37 @@ class Film(models.Model):
         verbose_name_plural = '影视作品'
         ordering = ['-created_at']
 
-    def __str__(self):
+    
+    def poster_url(self):
+        """自定义海报URL方法，处理_medium.jpg格式"""
+        if self.poster:
+            # 如果文件名已经包含_medium，则直接返回
+            if '_medium.' in str(self.poster):
+                return self.poster.url
+            # 否则添加_medium后缀
+            import os
+            filename, ext = os.path.splitext(str(self.poster))
+            return f"{filename}_medium{ext}"
+        return "https://via.placeholder.com/400x600?text=No+Poster"
+def __str__(self):
         return self.title
+
+    @property
+    def poster_url(self):
+        """获取海报URL"""
+        # 先检查是否有本地海报文件
+        if self.poster_path and os.path.exists(os.path.join(settings.STATIC_ROOT, self.poster_path.lstrip('/'))):
+            return self.poster_path
+
+        # 如果没有，尝试从TMDB获取
+        try:
+            from .tmdb_api import TMDBApi
+            tmdb_api = TMDBApi()
+            return tmdb_api.get_or_download_poster(self)
+        except Exception as e:
+            print(f"获取海报失败: {e}")
+            # 返回默认海报
+            return "https://via.placeholder.com/300x450?text=No+Poster"
 
 
 class WatchHistory(models.Model):
@@ -107,3 +143,17 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} 的资料"
+
+    @property
+    def avatar_url(self):
+        """获取头像URL"""
+        if self.avatar and hasattr(self.avatar, 'url'):
+            try:
+                if os.path.exists(self.avatar.path):
+                    return self.avatar.url
+                else:
+                    return "https://via.placeholder.com/100x100?text=Missing+Avatar"
+            except:
+                return "https://via.placeholder.com/100x100?text=Error"
+        else:
+            return "https://via.placeholder.com/100x100?text=No+Avatar"

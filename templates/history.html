@@ -26,7 +26,7 @@
                                     <div class="row g-0">
                                         <div class="col-md-4">
                                             {% if film.poster_url %}
-                                                <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="img-fluid rounded-start" height="120">
+                                                <img src="/static/posters/{{ film.title|slugify }}_medium.jpg" alt="{{ film.title }}" class="card-img-top film-poster" height="200" style="object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
                                             {% else %}
                                                 <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="img-fluid rounded-start" height="120">
                                             {% endif %}

@@ -3,6 +3,7 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, 
 from . import views
 
 urlpatterns = [
+    path('test_poster/', views.test_poster, name='test_poster'),
     # 首页
     path('', views.index, name='index'),
     

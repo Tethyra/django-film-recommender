@@ -7,7 +7,6 @@ from django.db.models.functions import ExtractYear
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.urls import reverse
 from django.utils import timezone
-from .helpers import get_poster_url
 from datetime import datetime, date
 import json
 import os
@@ -546,7 +545,3 @@ def get_chart_data(request):
         'total_films': Film.objects.count(),
         'total_users': User.objects.count()
     })
-
-def test_poster(request):
-    """海报显示测试页面"""
-    return render(request, 'test_poster.html')

@@ -6,7 +6,7 @@
     <div class="col-md-4">
         <div class="card">
             {% if film.poster_url %}
-                <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" style="height: 400px; object-fit: cover;">
+                <img src="/static/posters/{{ film.title|slugify }}_medium.jpg" alt="{{ film.title }}" class="card-img-top film-poster" height="200" style="object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
             {% else %}
                 <img src="https://via.placeholder.com/300x450?text=No+Poster" alt="{{ film.title }}" class="card-img-top" style="height: 400px; object-fit: cover;">
             {% endif %}
