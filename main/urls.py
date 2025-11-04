@@ -59,4 +59,6 @@ urlpatterns = [
     # 数据可视化
     path('data-visualization/', views.data_visualization, name='data_visualization'),
     path('api/chart-data/', views.get_chart_data, name='get_chart_data'),
+
+    path('charts/', views.charts_dashboard, name='charts_dashboard'),
 ]

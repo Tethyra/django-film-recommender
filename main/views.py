@@ -15,7 +15,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from .models import Film, Category, Review, Favorite, WatchHistory
 from .forms import ReviewForm, UserProfileForm, UserLoginForm, UserRegistrationForm
-
+from django.shortcuts import render
 # 用户认证视图
 def login_view(request):
     """用户登录视图"""
@@ -550,3 +550,7 @@ def get_chart_data(request):
 def test_poster(request):
     """海报显示测试页面"""
     return render(request, 'test_poster.html')
+
+def charts_dashboard(request):
+    # 添加图表仪表板的逻辑
+    return render(request, 'charts/dashboard.html')
