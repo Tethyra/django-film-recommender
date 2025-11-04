@@ -1,0 +1,500 @@
+"""
+影视推荐系统 - 完整视图函数
+包含所有必要的视图类和函数
+"""
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.urls import reverse_lazy, reverse
+from django.contrib import messages
+from django.db.models import Q, Avg, Count
+from django.utils import timezone
+from datetime import datetime, timedelta
+import random
+
+# 导入模型
+from .models import Film, Category, Review, WatchHistory, Favorite, UserProfile
+
+# 自定义登录视图
+class CustomLoginView(LoginView):
+    """自定义登录视图"""
+    template_name = 'login.html'
+    redirect_authenticated_user = True
+    
+    def get_success_url(self):
+        """登录成功后重定向到首页"""
+        messages.success(self.request, f'欢迎回来，{self.request.user.username}！')
+        return reverse_lazy('index')
+    
+    def form_invalid(self, form):
+        """处理登录失败"""
+        messages.error(self.request, '用户名或密码错误，请重试')
+        return super().form_invalid(form)
+
+# 自定义登出视图
+class CustomLogoutView(LogoutView):
+    """自定义登出视图"""
+    next_page = 'index'
+    
+    def dispatch(self, request, *args, **kwargs):
+        """登出时添加提示信息"""
+        if request.user.is_authenticated:
+            messages.success(request, '您已成功退出登录')
+        return super().dispatch(request, *args, **kwargs)
+
+# 用户注册视图
+class RegisterView(CreateView):
+    """用户注册视图"""
+    template_name = 'register.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    
+    def form_valid(self, form):
+        """注册成功后的处理"""
+        response = super().form_valid(form)
+        messages.success(self.request, '注册成功！请登录您的账户')
+        return response
+    
+    def form_invalid(self, form):
+        """注册失败的处理"""
+        messages.error(self.request, '注册失败，请检查您的输入')
+        return super().form_invalid(form)
+
+# 自定义密码重置视图
+class CustomPasswordResetView(PasswordResetView):
+    """自定义密码重置视图"""
+    template_name = 'password_reset.html'
+    email_template_name = 'password_reset_email.html'
+    success_url = reverse_lazy('password_reset_done')
+    
+    def form_valid(self, form):
+        """密码重置邮件发送成功"""
+        messages.success(self.request, '密码重置邮件已发送，请查收')
+        return super().form_valid(form)
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    """密码重置邮件发送完成视图"""
+    template_name = 'password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """密码重置确认视图"""
+    template_name = 'password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+    
+    def form_valid(self, form):
+        """密码重置成功"""
+        messages.success(self.request, '密码重置成功！您现在可以登录了')
+        return super().form_valid(form)
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    """密码重置完成视图"""
+    template_name = 'password_reset_complete.html'
+
+# 首页视图
+def index(request):
+    """首页视图"""
+    try:
+        # 获取热门电影（评分最高的12部）
+        popular_films = Film.objects.annotate(
+            avg_rating=Avg('reviews__rating')
+        ).filter(avg_rating__isnull=False).order_by('-avg_rating')[:12]
+        
+        # 获取新上映电影（最近30天内添加的）
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        new_films = Film.objects.filter(
+            release_date__gte=thirty_days_ago
+        ).order_by('-release_date')[:12]
+        
+        # 获取经典电影（评分高且发布时间较早的）
+        classic_films = Film.objects.annotate(
+            avg_rating=Avg('reviews__rating')
+        ).filter(
+            avg_rating__gte=4.0,
+            release_date__lte=timezone.now() - timedelta(days=365*2)
+        ).order_by('-avg_rating')[:12]
+        
+        # 如果没有足够的数据，用随机电影填充
+        all_films = Film.objects.all()
+        if len(popular_films) < 3:
+            popular_films = random.sample(list(all_films), min(12, len(all_films)))
+        
+        if len(new_films) < 3:
+            new_films = random.sample(list(all_films), min(12, len(all_films)))
+        
+        if len(classic_films) < 3:
+            classic_films = random.sample(list(all_films), min(12, len(all_films)))
+        
+        context = {
+            'popular_films': popular_films,
+            'new_films': new_films,
+            'classic_films': classic_films,
+            'current_page': 'home',
+        }
+        
+        return render(request, 'index.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'首页加载失败: {str(e)}')
+        return render(request, 'index.html', {
+            'popular_films': [],
+            'new_films': [],
+            'classic_films': [],
+            'current_page': 'home',
+            'error': str(e)
+        })
+
+# 电影详情视图
+class FilmDetailView(DetailView):
+    """电影详情视图"""
+    model = Film
+    template_name = 'film_detail.html'
+    context_object_name = 'film'
+    
+    def get_context_data(self, **kwargs):
+        """添加额外的上下文数据"""
+        context = super().get_context_data(** kwargs)
+        film = self.get_object()
+        
+        # 获取相关电影
+        related_films = Film.objects.filter(
+            categories__in=film.categories.all()
+        ).exclude(id=film.id).distinct()[:6]
+        
+        # 获取评论
+        reviews = film.reviews.all().order_by('-created_at')[:10]
+        
+        # 计算平均评分
+        avg_rating = film.reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+        
+        # 检查用户是否收藏了这部电影
+        is_favorite = False
+        if self.request.user.is_authenticated:
+            is_favorite = Favorite.objects.filter(
+                user=self.request.user,
+                film=film
+            ).exists()
+        
+        context.update({
+            'related_films': related_films,
+            'reviews': reviews,
+            'avg_rating': round(avg_rating, 1),
+            'is_favorite': is_favorite,
+            'current_page': 'film_detail',
+        })
+        
+        return context
+    
+    def get(self, request, *args, **kwargs):
+        """记录观看历史"""
+        response = super().get(request, *args, **kwargs)
+        
+        # 登录用户才记录观看历史
+        if request.user.is_authenticated:
+            film = self.get_object()
+            WatchHistory.objects.create(
+                user=request.user,
+                film=film,
+                watch_time=timezone.now(),
+                watch_duration=60  # 默认60秒
+            )
+        
+        return response
+
+# 分类列表视图
+class CategoryListView(ListView):
+    """分类列表视图"""
+    model = Category
+    template_name = 'category_list.html'
+    context_object_name = 'categories'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'category'
+        return context
+
+# 分类详情视图
+class CategoryDetailView(ListView):
+    """分类详情视图"""
+    model = Film
+    template_name = 'category_detail.html'
+    context_object_name = 'films'
+    paginate_by = 12
+    
+    def get_queryset(self):
+        """根据分类过滤电影"""
+        self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
+        return Film.objects.filter(categories=self.category).order_by('-release_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = self.category
+        context['current_page'] = 'category'
+        return context
+
+# 排行榜视图
+def rankings(request):
+    """排行榜视图"""
+    # 评分最高的电影
+    top_rated = Film.objects.annotate(
+        avg_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    ).filter(
+        avg_rating__isnull=False,
+        review_count__gte=5
+    ).order_by('-avg_rating')[:20]
+    
+    # 最新上映
+    latest_release = Film.objects.order_by('-release_date')[:20]
+    
+    # 最多评论
+    most_reviewed = Film.objects.annotate(
+        review_count=Count('reviews')
+    ).order_by('-review_count')[:20]
+    
+    context = {
+        'top_rated': top_rated,
+        'latest_release': latest_release,
+        'most_reviewed': most_reviewed,
+        'current_page': 'rankings',
+    }
+    
+    return render(request, 'rankings.html', context)
+
+# 搜索视图
+def search(request):
+    """搜索视图"""
+    query = request.GET.get('q', '')
+    films = []
+    
+    if query:
+        films = Film.objects.filter(
+            Q(title__icontains=query) | 
+            Q(description__icontains=query) |
+            Q(director__icontains=query) |
+            Q(actors__icontains=query)
+        ).distinct()
+    
+    context = {
+        'films': films,
+        'query': query,
+        'current_page': 'search',
+    }
+    
+    return render(request, 'search.html', context)
+
+# 收藏功能
+@login_required
+def toggle_favorite(request, film_id):
+    """切换电影收藏状态"""
+    film = get_object_or_404(Film, id=film_id)
+    favorite, created = Favorite.objects.get_or_create(
+        user=request.user,
+        film=film
+    )
+    
+    if not created:
+        favorite.delete()
+        messages.success(request, f'已取消收藏《{film.title}》')
+    else:
+        messages.success(request, f'已收藏《{film.title}》')
+    
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+# 用户收藏列表
+@login_required
+def favorites(request):
+    """用户收藏列表"""
+    favorites = Favorite.objects.filter(user=request.user).order_by('-created_at')
+    
+    context = {
+        'favorites': favorites,
+        'current_page': 'favorites',
+    }
+    
+    return render(request, 'favorites.html', context)
+
+# 观看历史
+@login_required
+def watch_history(request):
+    """用户观看历史"""
+    history = WatchHistory.objects.filter(user=request.user).order_by('-watch_time')
+    
+    context = {
+        'history': history,
+        'current_page': 'watch_history',
+    }
+    
+    return render(request, 'history.html', context)
+
+# 个人资料
+@login_required
+def profile(request):
+    """用户个人资料"""
+    try:
+        profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+    
+    if request.method == 'POST':
+        # 处理资料更新
+        bio = request.POST.get('bio', '')
+        birth_date = request.POST.get('birth_date', None)
+        favorite_categories = request.POST.getlist('favorite_categories')
+        
+        profile.bio = bio
+        if birth_date:
+            profile.birth_date = datetime.strptime(birth_date, '%Y-%m-%d')
+        profile.save()
+        
+        # 更新喜欢的分类
+        profile.favorite_categories.set(favorite_categories)
+        
+        messages.success(request, '个人资料更新成功')
+        return redirect('profile')
+    
+    categories = Category.objects.all()
+    
+    context = {
+        'profile': profile,
+        'categories': categories,
+        'current_page': 'profile',
+    }
+    
+    return render(request, 'profile.html', context)
+
+# 社区讨论
+def community(request):
+    """社区讨论页面"""
+    # 获取最新评论
+    latest_reviews = Review.objects.all().order_by('-created_at')[:20]
+    
+    # 获取活跃用户
+    active_users = UserProfile.objects.annotate(
+        review_count=Count('user__reviews')
+    ).order_by('-review_count')[:10]
+    
+    context = {
+        'latest_reviews': latest_reviews,
+        'active_users': active_users,
+        'current_page': 'community',
+    }
+    
+    return render(request, 'community.html', context)
+
+# 添加评论
+@login_required
+def add_review(request, film_id):
+    """添加电影评论"""
+    film = get_object_or_404(Film, id=film_id)
+    
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        content = request.POST.get('content')
+        
+        if rating and content:
+            Review.objects.create(
+                user=request.user,
+                film=film,
+                rating=int(rating),
+                content=content
+            )
+            
+            messages.success(request, '评论发表成功')
+            return redirect('film_detail', pk=film_id)
+        else:
+            messages.error(request, '请填写评分和评论内容')
+    
+    context = {
+        'film': film,
+        'current_page': 'add_review',
+    }
+    
+    return render(request, 'add_review.html', context)
+
+
+def category_list(request):
+    """分类列表视图"""
+    categories = Category.objects.annotate(
+        film_count=Count('films')
+    ).order_by('name')
+
+    popular_films = Film.objects.annotate(
+        avg_rating=Avg('reviews__rating')
+    ).order_by('-avg_rating')[:8]
+
+    context = {
+        'categories': categories,
+        'popular_films': popular_films,
+        'current_page': 'categories',
+    }
+    return render(request, 'category.html', context)
+
+
+def category_detail(request, category_id):
+    """分类详情视图"""
+    category = get_object_or_404(Category, id=category_id)
+    films = Film.objects.filter(categories=category)
+
+    sort = request.GET.get('sort', 'rating')
+    order = request.GET.get('order', 'desc')
+    view = request.GET.get('view', 'grid')
+
+    if sort == 'rating':
+        films = films.annotate(avg_rating=Avg('reviews__rating')).order_by(
+            f'-avg_rating' if order == 'desc' else 'avg_rating'
+        )
+    elif sort == 'release_date':
+        films = films.order_by(f'-release_date' if order == 'desc' else 'release_date')
+    elif sort == 'title':
+        films = films.order_by(f'title' if order == 'asc' else '-title')
+    else:
+        films = films.order_by('-created_at')
+
+    paginator = Paginator(films, 12 if view == 'grid' else 10)
+    page = request.GET.get('page')
+    try:
+        films = paginator.page(page)
+    except PageNotAnInteger:
+        films = paginator.page(1)
+    except EmptyPage:
+        films = paginator.page(paginator.num_pages)
+
+    context = {
+        'category': category,
+        'films': films,
+        'sort': sort,
+        'order': order,
+        'view': view,
+        'current_page': 'category',
+    }
+    return render(request, 'category_detail.html', context)
+
+
+def login_view(request):
+    """用户登录视图"""
+    from django.shortcuts import render, redirect
+    from django.contrib.auth.decorators import login_required
+    from django.contrib import messages
+    from .forms import UserLoginForm
+    
+    if request.user.is_authenticated:
+        return redirect('index')
+    
+    if request.method == 'POST':
+        form = UserLoginForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'欢迎回来，{username}！')
+            return redirect('index')
+    else:
+        form = UserLoginForm()
+    
+    context = {
+        'form': form,
+        'current_page': 'login',
+    }
+    return render(request, 'login.html', context)

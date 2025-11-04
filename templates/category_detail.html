@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}{{ category.name }} - 影视推荐系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="text-primary">
+            <i class="fas fa-film mr-2"></i>
+            {{ category.name }}
+        </h2>
+        <p class="text-muted">{{ category.description }}</p>
+    </div>
+    
+    <div class="row">
+        {% for film in films %}
+        <div class="col-md-3 mb-4">
+            <div class="card film-card h-100 shadow-sm hover-shadow">
+                {% if film.poster %}
+                    <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
+                {% elif film.poster_url %}
+                    <img src="{{ film.poster_url }}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title font-weight-bold">{{ film.title }}</h6>
+                    <div class="rating mb-2">
+                        {% for i in "12345"|make_list %}
+                            {% if forloop.counter <= film.rating|floatformat:0 %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-muted"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ms-1 text-muted">{{ film.rating|floatformat:1 }}</span>
+                    </div>
+                    <p class="card-text text-muted mt-2" style="font-size: 0.9rem; line-height: 1.4; height: 42px; overflow: hidden;">
+                        {{ film.description|truncatechars:80 }}
+                    </p>
+                    <div class="mt-3">
+                        <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle mr-2"></i>
+                该分类下暂无电影
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 分页 -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">&laquo; 第一页</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">
+                    第 {{ page_obj.number }} 页，共 {{ page_obj.paginator.num_pages }} 页
+                </span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">最后一页 &raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .film-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .film-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .rating i {
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}

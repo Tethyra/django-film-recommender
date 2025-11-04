@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block content %}
 <div class="container">
@@ -15,7 +17,7 @@
                         <div class="col-md-3">
                             <div class="card film-card">
                                 {% if film.poster %}
-                                    <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="250">
+                                    <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="250">
                                 {% else %}
                                     <img src="https://via.placeholder.com/300x250?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="250">
                                 {% endif %}

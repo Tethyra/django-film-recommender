@@ -1,6 +1,7 @@
+# main/urls.py - 修复后的URL配置
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # 首页
@@ -10,17 +11,17 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     
     # 登录和注册
-    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('login/', views.login_view, name='login'),
     path('register/', views.register, name='register'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
     # 密码重置
-    path('password-reset/', PasswordResetView.as_view(template_name='password_reset.html'), name='password_reset'),
-    path('password-reset/done/', PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
-    path('password-reset-confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
-    path('password-reset-complete/', PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),
+    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='password_reset.html'), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),
     
-    # 分类页面
+    # 分类页面 - 修复这里
     path('categories/', views.category_list, name='category_list'),
     path('category/<int:category_id>/', views.category_detail, name='category_detail'),
     
@@ -44,6 +45,9 @@ urlpatterns = [
     
     # 收藏/取消收藏
     path('film/<int:film_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
+    
+    # 分享电影
+    path('film/<int:film_id>/share/', views.share_film, name='share_film'),
     
     # 个人资料
     path('profile/', views.profile, name='profile'),

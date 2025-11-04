@@ -96,6 +96,23 @@ def index(request):
         
         # 观看历史
         watch_history = WatchHistory.objects.filter(user=request.user).select_related('film')[:4]
+        
+        # 基于观看历史的推荐
+        if watch_history:
+            # 获取用户观看过的电影的分类
+            watched_categories = []
+            for history in watch_history:
+                watched_categories.extend(history.film.categories.all())
+            
+            # 基于分类推荐相似电影
+            if watched_categories:
+                recommended_films = Film.objects.filter(
+                    categories__in=watched_categories
+                ).exclude(
+                    id__in=[history.film.id for history in watch_history]
+                ).distinct().annotate(
+                    avg_rating=Avg('reviews__rating')
+                ).order_by('-avg_rating')[:4]
     
     context = {
         'popular_films': popular_films,
@@ -237,7 +254,7 @@ def film_detail(request, film_id):
     }
     return render(request, 'film_detail.html', context)
 
-# 搜索视图
+# 其他必要的视图函数...
 def search(request):
     """搜索视图"""
     query = request.GET.get('query', '')
@@ -280,7 +297,6 @@ def search(request):
     }
     return render(request, 'search_results.html', context)
 
-# 排行榜视图
 def rankings(request):
     """排行榜视图"""
     sort = request.GET.get('sort', 'rating')
@@ -323,7 +339,6 @@ def rankings(request):
     }
     return render(request, 'rankings.html', context)
 
-# 个人资料视图
 @login_required
 def profile(request, username=None):
     """个人资料视图"""
@@ -363,7 +378,7 @@ def profile(request, username=None):
     }
     return render(request, 'profile.html', context)
 
-# 我的收藏视图
+# 其他必要的视图函数...
 @login_required
 def favorites(request):
     """我的收藏视图"""
@@ -384,7 +399,6 @@ def favorites(request):
     }
     return render(request, 'favorites.html', context)
 
-# 观看历史视图
 @login_required
 def history(request):
     """观看历史视图"""
@@ -405,7 +419,6 @@ def history(request):
     }
     return render(request, 'history.html', context)
 
-# 社区视图
 def community(request):
     """社区页面视图"""
     popular_reviews = Review.objects.select_related('user', 'film').annotate(

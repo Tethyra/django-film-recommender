@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block title %}首页 - 影视推荐系统{% endblock %}
 
@@ -43,7 +45,7 @@
                 <div class="col-md-4 mb-4">
                     <div class="card film-card h-100 shadow-sm hover-shadow">
                         {% if film.poster %}
-                            <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
+                            <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
                         {% else %}
                             <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
                         {% endif %}
@@ -97,7 +99,7 @@
                 <div class="col-md-4 mb-4">
                     <div class="card film-card h-100 shadow-sm hover-shadow">
                         {% if film.poster %}
-                            <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
+                            <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
                         {% else %}
                             <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
                         {% endif %}
@@ -151,7 +153,7 @@
                 <div class="col-md-4 mb-4">
                     <div class="card film-card h-100 shadow-sm hover-shadow">
                         {% if film.poster %}
-                            <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
+                            <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
                         {% else %}
                             <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
                         {% endif %}

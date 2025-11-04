@@ -135,7 +135,7 @@ LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'index'
 
 # 在文件末尾添加TMDB API配置
-TMDB_API_KEY = '8d60f94ecd468445247d2e956f979364'  # 请替换为您的TMDB API密钥
+TMDB_API_KEY = '8d60f94ecd468445247d2e956f979364'
 TMDB_API_URL = 'https://api.themoviedb.org/3'
 TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p'
 

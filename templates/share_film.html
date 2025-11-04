@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block content %}
 <div class="row justify-content-center">
@@ -11,7 +13,7 @@
                 <div class="text-center mb-4">
                     <h2 class="mb-2">{{ film.title }}</h2>
                     {% if film.poster %}
-                        <img src="{{ film.poster.url }}" alt="{{ film.title }}" width="200" height="300" class="rounded mb-3">
+                        <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" width="200" height="300" class="rounded mb-3">
                     {% endif %}
                 </div>
                 

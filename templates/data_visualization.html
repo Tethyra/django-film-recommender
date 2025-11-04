@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}数据可视化 - 影视推荐系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">数据可视化分析</h2>
+    
+    <div class="row">
+        <!-- 分类分布饼图 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>电影分类分布</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 评分分布柱状图 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>电影评分分布</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ratingChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计信息卡片 -->
+        <div class="col-md-12 mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">总电影数</h5>
+                            <p class="card-text display-4" id="totalFilms">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">总用户数</h5>
+                            <p class="card-text display-4" id="totalUsers">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">总评论数</h5>
+                            <p class="card-text display-4" id="totalReviews">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">平均评分</h5>
+                            <p class="card-text display-4" id="avgRating">0.0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+<script>
+// 获取图表数据
+fetch("{% url 'get_chart_data' %}")
+    .then(response => response.json())
+    .then(data => {
+        console.log('数据获取成功:', data);
+        
+        // 更新统计信息
+        document.getElementById('totalFilms').textContent = data.total_films;
+        document.getElementById('totalUsers').textContent = data.total_users;
+        document.getElementById('totalReviews').textContent = data.review_stats.total_reviews || 0;
+        document.getElementById('avgRating').textContent = (data.review_stats.avg_rating || 0).toFixed(1);
+        
+        // 分类分布饼图
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'pie',
+            data: {
+                labels: data.categories.map(item => item.name),
+                datasets: [{
+                    data: data.categories.map(item => item.film_count),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // 评分分布柱状图
+        const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+        new Chart(ratingCtx, {
+            type: 'bar',
+            data: {
+                labels: data.ratings.map(item => item.rating),
+                datasets: [{
+                    label: '电影数量',
+                    data: data.ratings.map(item => item.count),
+                    backgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    })
+    .catch(error => {
+        console.error('获取图表数据失败:', error);
+        alert('数据加载失败，请刷新页面重试。');
+    });
+</script>
+{% endblock %}
