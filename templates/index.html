@@ -1,84 +1,45 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
-{% block title %}首页 - 影视推荐系统{% endblock %}
-
 {% block content %}
-<div class="container mt-4">
-    <!-- 欢迎横幅 -->
-    <div class="jumbotron bg-gradient text-white mb-4">
-        <div class="container">
-            <h1 class="display-4">
-                <i class="fas fa-film mr-3"></i>
-                欢迎来到影视推荐系统
-            </h1>
-            <p class="lead">
-                发现精彩，分享感动，让每一部电影都找到懂它的人
-            </p>
-            {% if not user.is_authenticated %}
-            <div class="mt-4">
-                <a href="{% url 'login' %}" class="btn btn-light btn-lg me-3">
-                    <i class="fas fa-sign-in-alt mr-2"></i>
-                    登录
-                </a>
-                <a href="{% url 'register' %}" class="btn btn-secondary btn-lg">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    免费注册
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
+<div class="container">
     <!-- 热门推荐 -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-gradient bg-primary text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-fire mr-2"></i>
-                热门推荐
-            </h5>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-fire"></i> 热门推荐</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 {% for film in popular_films %}
-                <div class="col-md-4 mb-4">
-                    <div class="card film-card h-100 shadow-sm hover-shadow">
-                        {% if film.poster %}
-                            <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
-                        {% else %}
-                            <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
-                        {% endif %}
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        <!-- 使用固定图片作为示例 -->
+                        <img src="{% static 'posters/10号舱里的女人_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        
                         <div class="card-body">
-                            <h6 class="card-title font-weight-bold">{{ film.title }}</h6>
-                            <div class="rating mb-2">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
                                 {% for i in "12345"|make_list %}
-                                    {% if forloop.counter <= film.rating|floatformat:0 %}
-                                        <i class="fas fa-star text-warning"></i>
-                                    {% else %}
-                                        <i class="far fa-star text-muted"></i>
-                                    {% endif %}
+                                {% if forloop.counter <= film.rating|floatformat:0 %}
+                                <i class="fa fa-star"></i>
+                                {% else %}
+                                <i class="fa fa-star-o"></i>
+                                {% endif %}
                                 {% endfor %}
-                                <span class="ms-1 text-muted">{{ film.rating|floatformat:1 }}</span>
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                             </div>
-                            <p class="card-text text-muted mt-2" style="font-size: 0.9rem; line-height: 1.4; height: 42px; overflow: hidden;">
-                                {{ film.description|truncatechars:100 }}
-                            </p>
-                            <div class="mt-3">
-                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary w-100">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    查看详情
-                                </a>
-                            </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                         </div>
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-center py-5">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        暂无热门推荐内容
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无热门推荐内容</p>
                 </div>
                 {% endfor %}
             </div>
@@ -86,53 +47,42 @@
     </div>
 
     <!-- 新片上映 -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-gradient bg-success text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-calendar-plus mr-2"></i>
-                新片上映
-            </h5>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-calendar"></i> 新片上映</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 {% for film in new_films %}
-                <div class="col-md-4 mb-4">
-                    <div class="card film-card h-100 shadow-sm hover-shadow">
-                        {% if film.poster %}
-                            <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
-                        {% else %}
-                            <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
-                        {% endif %}
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        <!-- 使用不同的固定图片 -->
+                        <img src="{% static 'posters/365_dni_Ten_dzień_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        
                         <div class="card-body">
-                            <h6 class="card-title font-weight-bold">{{ film.title }}</h6>
-                            <div class="rating mb-2">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
                                 {% for i in "12345"|make_list %}
-                                    {% if forloop.counter <= film.rating|floatformat:0 %}
-                                        <i class="fas fa-star text-warning"></i>
-                                    {% else %}
-                                        <i class="far fa-star text-muted"></i>
-                                    {% endif %}
+                                {% if forloop.counter <= film.rating|floatformat:0 %}
+                                <i class="fa fa-star"></i>
+                                {% else %}
+                                <i class="fa fa-star-o"></i>
+                                {% endif %}
                                 {% endfor %}
-                                <span class="ms-1 text-muted">{{ film.rating|floatformat:1 }}</span>
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                             </div>
-                            <p class="card-text text-muted mt-2" style="font-size: 0.9rem; line-height: 1.4; height: 42px; overflow: hidden;">
-                                {{ film.description|truncatechars:100 }}
-                            </p>
-                            <div class="mt-3">
-                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-success w-100">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    查看详情
-                                </a>
-                            </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                         </div>
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-center py-5">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        暂无新片上映信息
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无新片上映信息</p>
                 </div>
                 {% endfor %}
             </div>
@@ -140,53 +90,58 @@
     </div>
 
     <!-- 经典重温 -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-gradient bg-purple text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-diamond mr-2"></i>
-                经典重温
-            </h5>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-diamond"></i> 经典重温</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 {% for film in classic_films %}
-                <div class="col-md-4 mb-4">
-                    <div class="card film-card h-100 shadow-sm hover-shadow">
-                        {% if film.poster %}
-                            <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        <!-- 使用循环轮播不同的图片 -->
+                        {% with img_index=forloop.counter|add:2 %}
+                        {% if img_index == 3 %}
+                        <img src="{% static 'posters/Assassin_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        {% elif img_index == 4 %}
+                        <img src="{% static 'posters/Bitter_Souls_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
                         {% else %}
-                            <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
+                        <img src="{% static 'posters/F1：狂飙飞车_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
                         {% endif %}
+                        {% endwith %}
+                        
                         <div class="card-body">
-                            <h6 class="card-title font-weight-bold">{{ film.title }}</h6>
-                            <div class="rating mb-2">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
                                 {% for i in "12345"|make_list %}
-                                    {% if forloop.counter <= film.rating|floatformat:0 %}
-                                        <i class="fas fa-star text-warning"></i>
-                                    {% else %}
-                                        <i class="far fa-star text-muted"></i>
-                                    {% endif %}
+                                {% if forloop.counter <= film.rating|floatformat:0 %}
+                                <i class="fa fa-star"></i>
+                                {% else %}
+                                <i class="fa fa-star-o"></i>
+                                {% endif %}
                                 {% endfor %}
-                                <span class="ms-1 text-muted">{{ film.rating|floatformat:1 }}</span>
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
                             </div>
-                            <p class="card-text text-muted mt-2" style="font-size: 0.9rem; line-height: 1.4; height: 42px; overflow: hidden;">
-                                {{ film.description|truncatechars:100 }}
-                            </p>
-                            <div class="mt-3">
-                                <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-purple w-100">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    查看详情
-                                </a>
-                            </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
                         </div>
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12 text-center py-5">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        暂无经典电影推荐
-                    </div>
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无经典影片推荐</p>
                 </div>
                 {% endfor %}
             </div>
@@ -194,95 +149,18 @@
     </div>
 
     <!-- 推荐系统说明 -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-gradient bg-info text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-cogs mr-2"></i>
-                智能推荐系统
-            </h5>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-cogs"></i> 智能推荐系统</h5>
         </div>
         <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <p class="text-muted mb-3">
-                        我们的推荐系统基于先进的机器学习算法，分析您的观影偏好、评分行为和社交互动，为您提供精准的影视推荐。
-                    </p>
-                    <p class="text-muted">
-                        系统会持续学习您的偏好，您评价的电影越多，推荐就会越精准。同时，我们也会考虑相似用户的喜好，为您发现可能感兴趣的内容。
-                    </p>
-                </div>
-                <div class="col-md-4 text-center">
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="btn btn-primary btn-lg mb-2 w-100">
-                        <i class="fas fa-bullseye mr-2"></i>
-                        完善个人偏好
-                    </a>
-                    <a href="{% url 'community' %}" class="btn btn-secondary btn-lg w-100">
-                        <i class="fas fa-users mr-2"></i>
-                        加入社区讨论
-                    </a>
-                    {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        登录后可享受个性化推荐服务
-                    </div>
-                    {% endif %}
-                </div>
+            <p>我们的推荐系统基于先进的机器学习算法，分析你的观影偏好、评分行为和社交互动，为你提供精准的影视推荐。</p>
+            <p>系统会持续学习你的偏好，你评价的电影越多，推荐就会越精准。同时，我们也会考虑相似用户的喜好，为你发现可能感兴趣的内容。</p>
+            <div class="text-center mt-3">
+                <a href="{% url 'profile' %}" class="btn btn-primary">完善个人偏好</a>
+                <a href="{% url 'community' %}" class="btn btn-secondary ms-2">加入社区讨论</a>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .bg-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .bg-gradient.bg-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .bg-gradient.bg-success {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    }
-    
-    .bg-gradient.bg-purple {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-    }
-    
-    .bg-gradient.bg-info {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    }
-    
-    .film-card {
-        transition: all 0.3s ease;
-    }
-    
-    .film-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
-    .rating i {
-        font-size: 0.8rem;
-    }
-    
-    .jumbotron {
-        padding: 2rem 1rem;
-        margin-bottom: 2rem;
-        border-radius: 0.3rem;
-    }
-    
-    @media (max-width: 768px) {
-        .jumbotron {
-            padding: 1rem;
-        }
-        
-        .jumbotron h1 {
-            font-size: 2rem;
-        }
-    }
-</style>
 {% endblock %}
