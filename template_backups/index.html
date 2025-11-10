@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <!-- 热门推荐 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-fire"></i> 热门推荐</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for film in popular_films %}
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        <!-- 使用固定图片作为示例 -->
+                        <img src="{% static 'posters/10号舱里的女人_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= film.rating|floatformat:0 %}
+                                <i class="fa fa-star"></i>
+                                {% else %}
+                                <i class="fa fa-star-o"></i>
+                                {% endif %}
+                                {% endfor %}
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                            </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无热门推荐内容</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 新片上映 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-calendar"></i> 新片上映</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for film in new_films %}
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        <!-- 使用不同的固定图片 -->
+                        <img src="{% static 'posters/365_dni_Ten_dzień_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= film.rating|floatformat:0 %}
+                                <i class="fa fa-star"></i>
+                                {% else %}
+                                <i class="fa fa-star-o"></i>
+                                {% endif %}
+                                {% endfor %}
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                            </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无新片上映信息</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 经典重温 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-diamond"></i> 经典重温</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for film in classic_films %}
+                <div class="col-md-4">
+                    <div class="card film-card">
+                        <!-- 使用循环轮播不同的图片 -->
+                        {% with img_index=forloop.counter|add:2 %}
+                        {% if img_index == 3 %}
+                        <img src="{% static 'posters/Assassin_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        {% elif img_index == 4 %}
+                        <img src="{% static 'posters/Bitter_Souls_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        {% else %}
+                        <img src="{% static 'posters/F1：狂飙飞车_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             class="card-img-top" 
+                             height="200"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                        {% endif %}
+                        {% endwith %}
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">{{ film.title }}</h6>
+                            <div class="rating">
+                                {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= film.rating|floatformat:0 %}
+                                <i class="fa fa-star"></i>
+                                {% else %}
+                                <i class="fa fa-star-o"></i>
+                                {% endif %}
+                                {% endfor %}
+                                <span class="ms-1">{{ film.rating|floatformat:1 }}</span>
+                            </div>
+                            <p class="card-text mt-2">{{ film.description|truncatechars:100 }}</p>
+                            <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">查看详情</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">暂无经典影片推荐</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 推荐系统说明 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-cogs"></i> 智能推荐系统</h5>
+        </div>
+        <div class="card-body">
+            <p>我们的推荐系统基于先进的机器学习算法，分析你的观影偏好、评分行为和社交互动，为你提供精准的影视推荐。</p>
+            <p>系统会持续学习你的偏好，你评价的电影越多，推荐就会越精准。同时，我们也会考虑相似用户的喜好，为你发现可能感兴趣的内容。</p>
+            <div class="text-center mt-3">
+                <a href="{% url 'profile' %}" class="btn btn-primary">完善个人偏好</a>
+                <a href="{% url 'community' %}" class="btn btn-secondary ms-2">加入社区讨论</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

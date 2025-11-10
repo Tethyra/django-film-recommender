@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📋 图片显示测试页面</h2>
+    
+    <div class="alert alert-info">
+        <strong>测试说明：</strong> 此页面用于验证图片显示功能是否正常工作。
+        如果所有图片都能显示，则说明静态文件配置正确。
+    </div>
+
+    <!-- 测试1：直接静态文件引用 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>测试1：直接静态文件引用</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <img src="{% static 'posters/10号舱里的女人_medium.jpg' %}" 
+                         alt="测试图片1" 
+                         class="img-fluid"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=加载失败';">
+                    <p class="text-center mt-2">10号舱里的女人</p>
+                </div>
+                <div class="col-md-3">
+                    <img src="{% static 'posters/365_dni_Ten_dzień_medium.jpg' %}" 
+                         alt="测试图片2" 
+                         class="img-fluid"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=加载失败';">
+                    <p class="text-center mt-2">365 dni</p>
+                </div>
+                <div class="col-md-3">
+                    <img src="{% static 'posters/Assassin_medium.jpg' %}" 
+                         alt="测试图片3" 
+                         class="img-fluid"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=加载失败';">
+                    <p class="text-center mt-2">Assassin</p>
+                </div>
+                <div class="col-md-3">
+                    <img src="{% static 'posters/Bitter_Souls_medium.jpg' %}" 
+                         alt="测试图片4" 
+                         class="img-fluid"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=加载失败';">
+                    <p class="text-center mt-2">Bitter Souls</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试2：模拟电影列表 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>测试2：模拟电影列表显示</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for i in "123456"|make_list %}
+                <div class="col-md-2">
+                    <div class="card">
+                        {% if forloop.counter == 1 %}
+                        <img src="{% static 'posters/10号舱里的女人_medium.jpg' %}" 
+                             alt="电影{{ i }}" 
+                             class="card-img-top"
+                             height="150"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x200?text=无海报';">
+                        {% elif forloop.counter == 2 %}
+                        <img src="{% static 'posters/365_dni_Ten_dzień_medium.jpg' %}" 
+                             alt="电影{{ i }}" 
+                             class="card-img-top"
+                             height="150"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x200?text=无海报';">
+                        {% elif forloop.counter == 3 %}
+                        <img src="{% static 'posters/Assassin_medium.jpg' %}" 
+                             alt="电影{{ i }}" 
+                             class="card-img-top"
+                             height="150"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x200?text=无海报';">
+                        {% elif forloop.counter == 4 %}
+                        <img src="{% static 'posters/Bitter_Souls_medium.jpg' %}" 
+                             alt="电影{{ i }}" 
+                             class="card-img-top"
+                             height="150"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x200?text=无海报';">
+                        {% elif forloop.counter == 5 %}
+                        <img src="{% static 'posters/F1：狂飙飞车_medium.jpg' %}" 
+                             alt="电影{{ i }}" 
+                             class="card-img-top"
+                             height="150"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x200?text=无海报';">
+                        {% else %}
+                        <img src="{% static 'posters/Diamanti_medium.jpg' %}" 
+                             alt="电影{{ i }}" 
+                             class="card-img-top"
+                             height="150"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x200?text=无海报';">
+                        {% endif %}
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center" style="font-size: 12px;">电影标题{{ i }}</h6>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试3：错误处理测试 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>测试3：错误处理机制</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>不存在的图片文件：</h6>
+                    <img src="{% static 'posters/不存在的图片.jpg' %}" 
+                         alt="错误测试" 
+                         class="img-fluid"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=图片不存在';">
+                    <p class="text-center mt-2 text-muted">应该显示占位图</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>错误的路径：</h6>
+                    <img src="{% static 'wrong_path/图片.jpg' %}" 
+                         alt="路径错误测试" 
+                         class="img-fluid"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=路径错误';">
+                    <p class="text-center mt-2 text-muted">应该显示占位图</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试结果总结 -->
+    <div class="card">
+        <div class="card-header">
+            <h5>测试结果总结</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <h6>✅ 如果看到以下结果，说明配置正确：</h6>
+                <ul>
+                    <li>测试1中的所有图片都能正常显示</li>
+                    <li>测试2中的电影卡片都有海报图片</li>
+                    <li>测试3中显示占位图而不是破碎图片图标</li>
+                </ul>
+            </div>
+            
+            <div class="alert alert-warning">
+                <h6>⚠️ 如果图片无法显示，请检查：</h6>
+                <ul>
+                    <li>urls.py中是否添加了静态文件配置</li>
+                    <li>图片文件是否确实存在于 static/posters/ 目录</li>
+                    <li>文件名是否与代码中的一致（区分大小写）</li>
+                    <li>服务器是否重启</li>
+                </ul>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'index' %}" class="btn btn-primary">返回首页</a>
+                <a href="{% url 'rankings' %}" class="btn btn-secondary ms-2">查看排行榜</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

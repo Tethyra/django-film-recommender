@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}电影分类 - 影视推荐系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-gradient bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-th-list mr-2"></i>
+                电影分类
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for category in categories %}
+                <div class="col-md-3 mb-4">
+                    <div class="card category-card h-100 hover-shadow">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-film text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title font-weight-bold">{{ category.name }}</h6>
+                            <p class="text-muted text-sm mb-3">{{ category.description|truncatechars:50 }}</p>
+                            <a href="{% url 'category_detail' category.slug %}" class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-arrow-right mr-1"></i>
+                                浏览电影
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        暂无分类数据
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

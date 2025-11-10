@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- 个人信息 -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fa fa-user"></i> 个人信息</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="rounded-circle" width="150" height="150">
+                {% else %}
+                    <img src="https://via.placeholder.com/150?text={{ user.username|first }}" alt="{{ user.username }}" class="rounded-circle" width="150" height="150">
+                {% endif %}
+                <h4 class="mt-3">{{ user.username }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                <p class="text-muted">
+                    注册时间: {{ user.date_joined|date:"Y年m月d日" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑资料 -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fa fa-edit"></i> 编辑个人资料</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">用户名</label>
+                            <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.avatar.id_for_label }}" class="form-label">头像</label>
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}
+                            <div class="text-danger">{{ form.avatar.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label">个人简介</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}
+                            <div class="text-danger">{{ form.bio.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.birth_date.id_for_label }}" class="form-label">出生日期</label>
+                        {{ form.birth_date }}
+                        {% if form.birth_date.errors %}
+                            <div class="text-danger">{{ form.birth_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.favorite_categories.id_for_label }}" class="form-label">喜欢的分类</label>
+                        {{ form.favorite_categories }}
+                        {% if form.favorite_categories.errors %}
+                            <div class="text-danger">{{ form.favorite_categories.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> 保存修改
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 我的收藏 -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fa fa-heart"></i> 我的收藏 ({{ favorites.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if favorites %}
+                    <div class="row">
+                        {% for favorite in favorites %}
+                            <div class="col-md-3">
+                                <div class="card film-card">
+                                    {% if favorite.film.poster %}
+                                        <img src="{{ favorite.film.poster.url }}" alt="{{ favorite.film.title }}" class="card-img-top" height="200">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ favorite.film.title }}" class="card-img-top" height="200">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ favorite.film.title }}</h6>
+                                        <div class="rating">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= favorite.film.rating|floatformat:0 %}
+                                                    <i class="fa fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa fa-star-o"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span class="ms-1">{{ favorite.film.rating|floatformat:1 }}</span>
+                                        </div>
+                                        <a href="{% url 'film_detail' favorite.film.id %}" class="btn btn-sm btn-primary mt-2">
+                                            查看详情
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">暂无收藏内容</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

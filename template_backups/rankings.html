@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- 排行榜标题 -->
+    <div class="mb-4 text-center">
+        <h2>影视排行榜</h2>
+        <p class="text-muted">基于用户评分和观看量的综合排名</p>
+    </div>
+
+    <!-- 排行榜标签页 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if ranking_type == 'all' %}active{% endif %}" href="{% url 'rankings' %}">全部影片</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if ranking_type == 'movie' %}active{% endif %}" href="{% url 'rankings' %}?type=movie">电影</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if ranking_type == 'tv' %}active{% endif %}" href="{% url 'rankings' %}?type=tv">电视剧</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if ranking_type == 'animation' %}active{% endif %}" href="{% url 'rankings' %}?type=animation">动画</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <!-- 排行榜列表 -->
+            <div class="list-group">
+                {% for film in films %}
+                <div class="list-group-item d-flex align-items-center">
+                    <!-- 排名 -->
+                    <div class="me-3">
+                        <span class="badge bg-primary rounded-circle p-2 {% if forloop.counter <= 3 %}text-white{% else %}bg-secondary{% endif %}">
+                            {{ forloop.counter }}
+                        </span>
+                    </div>
+                    
+                    <!-- 海报 -->
+                    <div class="me-4">
+                        <!-- 排行榜使用不同的图片 -->
+                        {% if forloop.counter == 1 %}
+                        <img src="{% static 'posters/10号舱里的女人_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             width="80" 
+                             height="120" 
+                             class="rounded"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/80x120?text=No+Poster';">
+                        {% elif forloop.counter == 2 %}
+                        <img src="{% static 'posters/365_dni_Ten_dzień_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             width="80" 
+                             height="120" 
+                             class="rounded"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/80x120?text=No+Poster';">
+                        {% elif forloop.counter == 3 %}
+                        <img src="{% static 'posters/Assassin_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             width="80" 
+                             height="120" 
+                             class="rounded"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/80x120?text=No+Poster';">
+                        {% else %}
+                        <img src="{% static 'posters/Bitter_Souls_medium.jpg' %}" 
+                             alt="{{ film.title }}" 
+                             width="80" 
+                             height="120" 
+                             class="rounded"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/80x120?text=No+Poster';">
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 影片信息 -->
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ film.title }}</h6>
+                        <p class="text-muted mb-1">
+                            {% if film.release_date %}
+                            {{ film.release_date|date:"Y年" }} • 
+                            {% endif %}
+                            {% for category in film.categories.all|slice:":2" %}
+                            {{ category.name }}{% if not forloop.last %} • {% endif %}
+                            {% endfor %}
+                        </p>
+                        <div class="rating">
+                            {% for i in "12345"|make_list %}
+                            {% if forloop.counter <= film.rating|floatformat:0 %}
+                            <i class="fa fa-star text-warning"></i>
+                            {% else %}
+                            <i class="fa fa-star-o text-warning"></i>
+                            {% endif %}
+                            {% endfor %}
+                            <span class="ms-1">{{ film.rating|floatformat:1 }} ({{ film.rating_count }}人)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="ms-4">
+                        <a href="{% url 'film_detail' film.id %}" class="btn btn-sm btn-primary">详情</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center">
+                    <p class="text-muted">暂无排名数据</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">参与评分用户</h5>
+                    <p class="card-text display-4">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">总评分次数</h5>
+                    <p class="card-text display-4">{{ total_ratings }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">平均评分</h5>
+                    <p class="card-text display-4">{{ average_rating|floatformat:1 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

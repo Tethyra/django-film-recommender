@@ -26,6 +26,7 @@ class Film(models.Model):
     actors = models.CharField(max_length=500, blank=True, null=True, verbose_name='演员')
     release_date = models.DateField(blank=True, null=True, verbose_name='上映日期')
     description = models.TextField(blank=True, null=True, verbose_name='剧情描述')
+    poster = models.ImageField(upload_to='posters/', blank=True, null=True, verbose_name='海报')  # 确保这行存在
     rating = models.FloatField(default=0, verbose_name='评分')
     rating_count = models.IntegerField(default=0, verbose_name='评分人数')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')

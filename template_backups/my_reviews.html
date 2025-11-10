@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fa fa-comment"></i> 我的评论</h5>
+        </div>
+        <div class="card-body">
+            {% if reviews %}
+                <div class="list-group">
+                    {% for review in reviews %}
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if review.film.poster %}
+                                        <img src="{{ review.film.poster.url }}" alt="{{ review.film.title }}" width="100" height="150" class="rounded">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/100x150?text=No+Poster" alt="{{ review.film.title }}" class="rounded">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="mb-1">
+                                            <a href="{% url 'film_detail' review.film.id %}" class="text-decoration-none text-dark">
+                                                {{ review.film.title }}
+                                            </a>
+                                        </h6>
+                                        <div class="rating">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= review.rating %}
+                                                    <i class="fa fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa fa-star-o"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span class="ms-1">{{ review.rating }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="mb-2">{{ review.content }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            评论时间: {{ review.created_at|date:"Y-m-d H:i" }}
+                                        </small>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ review.id }}">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 删除确认模态框 -->
+                        <div class="modal fade" id="deleteModal{{ review.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ review.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ review.id }}">确认删除</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>确定要删除这条评论吗？此操作不可撤销。</p>
+                                        <p class="text-muted">{{ review.content|truncatechars:50 }}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <form action="{% url 'delete_review' review.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">删除</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- 分页 -->
+                {% if reviews.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if reviews.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ reviews.previous_page_number }}">上一页</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">上一页</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in reviews.paginator.page_range %}
+                                {% if reviews.number == i %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if reviews.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ reviews.next_page_number }}">下一页</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">下一页</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa fa-comment-o fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">暂无评论</h4>
+                    <p class="text-muted mt-2">快去发表你的第一条评论吧！</p>
+                    <a href="{% url 'category_list' %}" class="btn btn-primary mt-3">浏览影视</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-center"><i class="fa fa-trash"></i> 确认删除</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fa fa-exclamation-triangle fa-3x text-warning"></i>
+                </div>
+                <h2 class="text-center mb-4">确定要删除吗？</h2>
+                <p class="text-center text-muted mb-4">
+                    您正在尝试删除这条评论，此操作不可撤销。
+                </p>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">评论内容</h6>
+                        <p class="card-text">{{ review.content }}</p>
+                        <small class="text-muted">
+                            评论时间: {{ review.created_at|date:"Y-m-d H:i" }}
+                        </small>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">确认删除</button>
+                        <a href="{% url 'film_detail' review.film.id %}" class="btn btn-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

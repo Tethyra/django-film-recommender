@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}影视推荐系统{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- 自定义基础样式 -->
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #667eea !important;
+        }
+        
+        /* 主内容区域 */
+        main {
+            flex: 1;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            border-bottom: none;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5a67d8;
+            border-color: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: #43e97b;
+            border-color: #43e97b;
+        }
+        
+        .btn-success:hover {
+            background-color: #38f9d7;
+            border-color: #38f9d7;
+        }
+        
+        .btn-purple {
+            background-color: #a8edea;
+            border-color: #a8edea;
+            color: #667eea;
+        }
+        
+        .btn-purple:hover {
+            background-color: #fed6e3;
+            border-color: #fed6e3;
+            color: #667eea;
+        }
+        
+        /* 表单样式 */
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: #2d3748;
+            color: #cbd5e0;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* 自定义工具类 */
+        .text-primary {
+            color: #667eea !important;
+        }
+        
+        .bg-primary {
+            background-color: #667eea !important;
+        }
+        
+        .hover-shadow:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+<style>
+
+/* 海报图片样式 */
+.film-poster {
+    object-fit: cover;
+    width: 100%;
+    height: 200px;
+    border-radius: 4px 4px 0 0;
+}
+
+.film-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.film-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .film-poster {
+        height: 150px;
+    }
+}
+</style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <i class="fas fa-film mr-2"></i>
+                影视推荐系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_page == 'home' %}active{% endif %}" href="{% url 'index' %}">
+                            <i class="fas fa-home mr-1"></i>
+                            首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_page == 'category' %}active{% endif %}" href="{% url 'category_list' %}">
+                            <i class="fas fa-th-list mr-1"></i>
+                            分类浏览
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_page == 'rankings' %}active{% endif %}" href="{% url 'rankings' %}">
+                            <i class="fas fa-trophy mr-1"></i>
+                            排行榜
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_page == 'community' %}active{% endif %}" href="{% url 'community' %}">
+                            <i class="fas fa-comments mr-1"></i>
+                            社区讨论
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_page == 'charts' %}active{% endif %}" href="{% url 'charts_dashboard' %}">
+                            <i class="fas fa-chart-bar mr-1"></i>
+                            数据可视化
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <!-- 用户菜单 -->
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bullseye mr-1"></i>
+                            {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">
+                                <i class="fas fa-user mr-2"></i>个人资料
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'history' %}">
+                                <i class="fas fa-history mr-2"></i>观看历史
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'favorites' %}">
+                                <i class="fas fa-heart mr-2"></i>我的收藏
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt mr-2"></i>退出登录
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt mr-1"></i>
+                            登录
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">
+                            <i class="fas fa-user-plus mr-1"></i>
+                            注册
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 消息提示 -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            <i class="fas fa-info-circle mr-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 主要内容 -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="text-white mb-3">
+                        <i class="fas fa-film mr-2"></i>
+                        影视推荐系统
+                    </h5>
+                    <p class="text-gray-300">
+                        发现精彩，分享感动，让每一部电影都找到懂它的人。
+                    </p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="text-white mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'index' %}" class="text-gray-300">首页</a></li>
+                        <li><a href="{% url 'category_list' %}" class="text-gray-300">分类浏览</a></li>
+                        <li><a href="{% url 'rankings' %}" class="text-gray-300">排行榜</a></li>
+                        <li><a href="{% url 'community' %}" class="text-gray-300">社区讨论</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-white mb-3">联系我们</h5>
+                    <ul class="list-unstyled text-gray-300">
+                        <li><i class="fas fa-envelope mr-2"></i>contact@filmrecommender.com</li>
+                        <li><i class="fas fa-phone mr-2"></i>400-123-4567</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>北京市朝阳区</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-gray-600 my-4">
+            <div class="text-center">
+                <p class="text-gray-300 mb-0">
+                    &copy; 2025 影视推荐系统. 保留所有权利.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 自定义脚本 -->
+    <script>
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加淡入动画
+            const elements = document.querySelectorAll('.card, .alert');
+            elements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.opacity = '0';
+                    element.style.transform = 'translateY(20px)';
+                    element.style.transition = 'all 0.6s ease-out';
+                    
+                    setTimeout(() => {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // 表单提交确认
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>处理中...';
+                        submitBtn.disabled = true;
+                        
+                        // 防止重复提交
+                        setTimeout(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }, 3000);
+                    }
+                });
+            });
+        });
+        
+        // 工具函数
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show fixed-top end-0 m-3 z-50`;
+            notification.innerHTML = `
+                <i class="fas fa-info-circle mr-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
