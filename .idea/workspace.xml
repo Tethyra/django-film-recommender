@@ -52,11 +52,13 @@
     "Python.diagnose_images (1).executor": "Run",
     "Python.diagnose_images.executor": "Run",
     "Python.diagnostic_tool.executor": "Run",
+    "Python.download_posters.executor": "Run",
     "Python.enhance_rankings_community_fixed.executor": "Run",
     "Python.fix_film_data.executor": "Run",
     "Python.fix_login_issue.executor": "Run",
     "Python.fix_login_profile.executor": "Run",
     "Python.fix_poster_issue.executor": "Run",
+    "Python.fix_posters.executor": "Run",
     "Python.fix_urls_error.executor": "Run",
     "Python.generate_rich_data.executor": "Run",
     "Python.generate_rich_data_fixed.executor": "Run",
@@ -75,13 +77,13 @@
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "django.template.preview.state": "SHOW_EDITOR",
-    "last_opened_file_path": "G:/理工/智能图像分析实践/smart_attendance_system",
+    "last_opened_file_path": "G:/film_project",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.intellij.python.django.customization.DjangoModulesConfigurable",
+    "settings.editor.selected.configurable": "http.proxy",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -90,7 +92,7 @@
       <recent name="G:\film_project" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.fix_posters">
+  <component name="RunManager" selected="Django 服务器.film_project">
     <configuration name="测试" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="film_project" />
       <option name="ENV_FILES" value="" />
@@ -137,7 +139,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="check_film_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="download_posters" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="film_project" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -146,58 +148,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="F:/下载/film_data_fix" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="F:/下载/film_data_fix/check_film_data.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="fix_film_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="film_project" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="F:/下载/film_data_fix" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="F:/下载/film_data_fix/fix_film_data.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="fix_posters" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="film_project" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="F:/下载/tmdb_integration" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="F:/下载/tmdb_integration/fix_posters.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/download_posters.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -234,9 +190,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.fix_posters" />
-        <item itemvalue="Python.fix_film_data" />
-        <item itemvalue="Python.check_film_data" />
+        <item itemvalue="Python.download_posters" />
         <item itemvalue="Python.测试" />
       </list>
     </recent_temporary>
@@ -292,6 +246,7 @@
     <SUITE FILE_PATH="coverage/film_project$generate_rich_data.coverage" NAME="generate_rich_data 覆盖结果" MODIFIED="1761653119894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/film_project$fix_urls_error.coverage" NAME="fix_urls_error 覆盖结果" MODIFIED="1762140523386" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/film_project$check_film_data.coverage" NAME="check_film_data 覆盖结果" MODIFIED="1762742331471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="F:/下载/film_data_fix" />
+    <SUITE FILE_PATH="coverage/film_project$fix_posters.coverage" NAME="fix_posters 覆盖结果" MODIFIED="1762743217567" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="F:/下载/tmdb_integration" />
     <SUITE FILE_PATH="coverage/film_project$batch_insert_movies.coverage" NAME="batch_insert_movies 覆盖结果" MODIFIED="1761649979799" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/film_project$update_posters_from_tmdb.coverage" NAME="update_posters_from_tmdb 覆盖结果" MODIFIED="1762140746697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/film_project$diagnose_images__1_.coverage" NAME="diagnose_images (1) 覆盖结果" MODIFIED="1762651934028" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -303,5 +258,6 @@
     <SUITE FILE_PATH="coverage/film_project$fix_login_profile.coverage" NAME="fix_login_profile 覆盖结果" MODIFIED="1762136607873" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/film_project$final_poster_fix.coverage" NAME="final_poster_fix 覆盖结果" MODIFIED="1762649462742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="F:/下载/影视推荐系统海报修复包" />
     <SUITE FILE_PATH="coverage/film_project$sync_static_to_g_drive.coverage" NAME="sync_static_to_g_drive 覆盖结果" MODIFIED="1762136170200" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/film_project$download_posters.coverage" NAME="download_posters 覆盖结果" MODIFIED="1762744099075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
