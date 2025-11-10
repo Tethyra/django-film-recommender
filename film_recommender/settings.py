@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#y@&$%^&*()_+{}|:"<>?`-=[]\\;\',./'
+SECRET_KEY = 'django-insecure-#$&%$&*()-_+:<>?=[]\{}|;,.//'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main.apps.MainConfig',
-    'charts.apps.ChartsConfig',
 ]
 
 MIDDLEWARE = [
@@ -124,6 +123,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+# Media files (user uploaded content)
+# 添加媒体文件配置
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -133,29 +137,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'index'
-
-# 在文件末尾添加TMDB API配置
-TMDB_API_KEY = '8d60f94ecd468445247d2e956f979364'
-TMDB_API_URL = 'https://api.themoviedb.org/3'
-TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p'
-
-# 海报尺寸配置
-TMDB_POSTER_SIZES = {
-    'small': 'w185',
-    'medium': 'w342',
-    'large': 'w500',
-    'original': 'original'
-}
-
-# 静态文件配置
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    'G:\\film_project\\static',  # 只保留用户指定的路径
-]
-
-# 海报存储路径（直接存储到G盘）
-POSTER_STORAGE_PATH = 'G:\\film_project\\static\\posters'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
