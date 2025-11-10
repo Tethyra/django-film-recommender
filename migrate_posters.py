@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-媒体文件迁移脚本（Windows修复版）
-将图片从 static/posters/ 目录移动到 media/posters/ 目录
-"""
 
 import os
 import shutil
