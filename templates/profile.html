@@ -1,122 +1,250 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="row">
+<div class="row gap-6">
     <!-- 个人信息 -->
     <div class="col-md-4">
-        <div class="card">
+        <div class="card fade-in">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fa fa-user"></i> 个人信息</h5>
+                <h5 class="mb-0">
+                    <i class="fas fa-user-circle text-primary mr-2"></i>
+                    个人信息
+                </h5>
             </div>
             <div class="card-body text-center">
-                {% if user.profile.avatar %}
-                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="rounded-circle" width="150" height="150">
-                {% else %}
-                    <img src="https://via.placeholder.com/150?text={{ user.username|first }}" alt="{{ user.username }}" class="rounded-circle" width="150" height="150">
-                {% endif %}
-                <h4 class="mt-3">{{ user.username }}</h4>
-                <p class="text-muted">{{ user.email }}</p>
-                <p class="text-muted">
+                <!-- 头像显示 - 修复显示问题 -->
+                <div class="mb-4">
+                    <div class="relative inline-block">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" 
+                                 alt="{{ user.username }}" 
+                                 class="rounded-circle" 
+                                 width="160" 
+                                 height="160"
+                                 style="object-fit: cover; border: 4px solid #f3f4f6;">
+                        {% else %}
+                            <!-- 默认头像 - 使用用户名首字母 -->
+                            <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-circle w-40 h-40 flex items-center justify-center text-white text-4xl font-bold">
+                                {{ user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <!-- 编辑头像按钮 -->
+                        <button class="absolute bottom-2 right-2 bg-primary text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-primary-dark transition-colors"
+                                onclick="document.getElementById('id_avatar').click()">
+                            <i class="fas fa-camera text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <h4 class="font-bold mb-2">{{ user.username }}</h4>
+                <p class="text-gray-600 mb-4">{{ user.email }}</p>
+                
+                <!-- 用户统计信息 -->
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="font-bold text-lg">{{ favorites.count }}</div>
+                        <div class="text-sm text-gray-600">收藏</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold text-lg">{{ review_count }}</div>
+                        <div class="text-sm text-gray-600">评论</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold text-lg">{{ history_count }}</div>
+                        <div class="text-sm text-gray-600">浏览</div>
+                    </div>
+                </div>
+                
+                <!-- 个人简介 -->
+                <div class="text-left mb-4">
+                    <h6 class="font-semibold mb-2">个人简介</h6>
+                    <p class="text-gray-700 text-sm">
+                        {% if user.profile.bio %}
+                            {{ user.profile.bio }}
+                        {% else %}
+                            <span class="text-gray-400">暂无个人简介</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <!-- 注册时间 -->
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-calendar-alt mr-1"></i>
                     注册时间: {{ user.date_joined|date:"Y年m月d日" }}
-                </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 快速操作 -->
+        <div class="card mt-6 fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+                    快速操作
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="space-y-2">
+                    <a href="{% url 'favorites' %}" class="d-flex align-items-center text-gray-700 hover:text-primary transition-colors py-2">
+                        <i class="fas fa-heart w-6 text-red-500"></i>
+                        <span>我的收藏</span>
+                    </a>
+                    <a href="{% url 'history' %}" class="d-flex align-items-center text-gray-700 hover:text-primary transition-colors py-2">
+                        <i class="fas fa-history w-6 text-blue-500"></i>
+                        <span>观看历史</span>
+                    </a>
+                    <a href="{% url 'my_reviews' %}" class="d-flex align-items-center text-gray-700 hover:text-primary transition-colors py-2">
+                        <i class="fas fa-star w-6 text-yellow-500"></i>
+                        <span>我的评论</span>
+                    </a>
+                    <a href="{% url 'charts_dashboard' %}" class="d-flex align-items-center text-gray-700 hover:text-primary transition-colors py-2">
+                        <i class="fas fa-chart-bar w-6 text-green-500"></i>
+                        <span>数据统计</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-
+    
     <!-- 编辑资料 -->
     <div class="col-md-8">
-        <div class="card">
+        <div class="card fade-in">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fa fa-edit"></i> 编辑个人资料</h5>
+                <h5 class="mb-0">
+                    <i class="fas fa-edit text-primary mr-2"></i>
+                    编辑个人资料
+                </h5>
             </div>
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" enctype="multipart/form-data" id="profileForm">
                     {% csrf_token %}
                     
-                    <div class="row mb-3">
+                    <div class="row mb-4">
                         <div class="col-md-6">
-                            <label class="form-label">用户名</label>
+                            <label class="form-label font-medium">用户名</label>
                             <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                            <div class="form-text text-gray-500">用户名不可修改</div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">邮箱</label>
+                            <label class="form-label font-medium">邮箱</label>
                             <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                            <div class="form-text text-gray-500">邮箱不可修改</div>
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="{{ form.avatar.id_for_label }}" class="form-label">头像</label>
-                        {{ form.avatar }}
+                    <!-- 头像上传 -->
+                    <div class="mb-4">
+                        <label class="form-label font-medium">头像</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="id_avatar" name="avatar" accept="image/*"
+                                   onchange="previewAvatar(event)">
+                            <label class="input-group-text" for="id_avatar">
+                                <i class="fas fa-upload"></i>
+                            </label>
+                        </div>
                         {% if form.avatar.errors %}
-                            <div class="text-danger">{{ form.avatar.errors }}</div>
+                            <div class="text-danger text-sm mt-1">{{ form.avatar.errors }}</div>
                         {% endif %}
+                        <div class="form-text text-gray-500">支持 JPG、PNG 格式，建议尺寸 200x200px</div>
+                        
+                        <!-- 头像预览 -->
+                        <div id="avatarPreview" class="mt-3 hidden">
+                            <img id="previewImage" src="" alt="预览" class="rounded-lg border-2 border-gray-200 max-w-xs">
+                        </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="{{ form.bio.id_for_label }}" class="form-label">个人简介</label>
-                        {{ form.bio }}
+                    <div class="mb-4">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label font-medium">个人简介</label>
+                        <textarea class="form-control" id="{{ form.bio.id_for_label }}" name="bio" 
+                                  rows="4" placeholder="介绍一下自己吧...">{{ form.bio.value|default:'' }}</textarea>
                         {% if form.bio.errors %}
-                            <div class="text-danger">{{ form.bio.errors }}</div>
+                            <div class="text-danger text-sm mt-1">{{ form.bio.errors }}</div>
                         {% endif %}
+                        <div class="form-text text-gray-500">最多可输入200个字符</div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="{{ form.birth_date.id_for_label }}" class="form-label">出生日期</label>
-                        {{ form.birth_date }}
+                    <div class="mb-4">
+                        <label for="{{ form.birth_date.id_for_label }}" class="form-label font-medium">出生日期</label>
+                        <input type="date" class="form-control" id="{{ form.birth_date.id_for_label }}" 
+                               name="birth_date" value="{{ form.birth_date.value|default:'' }}">
                         {% if form.birth_date.errors %}
-                            <div class="text-danger">{{ form.birth_date.errors }}</div>
+                            <div class="text-danger text-sm mt-1">{{ form.birth_date.errors }}</div>
                         {% endif %}
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="{{ form.favorite_categories.id_for_label }}" class="form-label">喜欢的分类</label>
-                        {{ form.favorite_categories }}
+                    <div class="mb-4">
+                        <label for="{{ form.favorite_categories.id_for_label }}" class="form-label font-medium">喜欢的分类</label>
+                        <select class="form-select" id="{{ form.favorite_categories.id_for_label }}" 
+                                name="favorite_categories" multiple size="5">
+                            {% for category in form.favorite_categories.field.choices %}
+                                <option value="{{ category.0 }}" 
+                                        {% if category.0 in form.favorite_categories.value|default:'' %}selected{% endif %}>
+                                    {{ category.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
                         {% if form.favorite_categories.errors %}
-                            <div class="text-danger">{{ form.favorite_categories.errors }}</div>
+                            <div class="text-danger text-sm mt-1">{{ form.favorite_categories.errors }}</div>
                         {% endif %}
+                        <div class="form-text text-gray-500">按住 Ctrl 键可多选</div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fa fa-save"></i> 保存修改
-                    </button>
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-2"></i>
+                            保存修改
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo mr-2"></i>
+                            重置
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- 我的收藏 -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fa fa-heart"></i> 我的收藏 ({{ favorites.count }})</h5>
+        
+        <!-- 我的收藏 -->
+        <div class="card mt-6 fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-heart text-red-500 mr-2"></i>
+                    我的收藏 ({{ favorites.count }})
+                </h5>
+                <a href="{% url 'favorites' %}" class="text-primary hover:text-primary-dark transition-colors">
+                    查看全部 <i class="fas fa-arrow-right ml-1"></i>
+                </a>
             </div>
             <div class="card-body">
                 {% if favorites %}
-                    <div class="row">
-                        {% for favorite in favorites %}
-                            <div class="col-md-3">
-                                <div class="card film-card">
+                    <div class="row g-4">
+                        {% for favorite in favorites|slice:":6" %}
+                            <div class="col-md-2">
+                                <div class="film-card hover-zoom">
                                     {% if favorite.film.poster %}
-                                        <img src="{{ favorite.film.poster.url }}" alt="{{ favorite.film.title }}" class="card-img-top" height="200">
+                                        <img src="{{ favorite.film.poster.url }}" 
+                                             alt="{{ favorite.film.title }}" 
+                                             class="film-poster"
+                                             height="160"
+                                             onerror="this.onerror=null;this.src='https://via.placehold.com/120x160?text=No+Poster';">
                                     {% else %}
-                                        <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ favorite.film.title }}" class="card-img-top" height="200">
+                                        <img src="https://via.placehold.com/120x160?text=No+Poster" 
+                                             alt="{{ favorite.film.title }}" 
+                                             class="film-poster"
+                                             height="160">
                                     {% endif %}
-                                    <div class="card-body">
-                                        <h6 class="card-title">{{ favorite.film.title }}</h6>
-                                        <div class="rating">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title font-semibold text-xs mb-1 line-clamp-1">{{ favorite.film.title }}</h6>
+                                        <div class="rating text-xs mb-1">
                                             {% for i in "12345"|make_list %}
                                                 {% if forloop.counter <= favorite.film.rating|floatformat:0 %}
-                                                    <i class="fa fa-star"></i>
+                                                    <i class="fas fa-star"></i>
                                                 {% else %}
-                                                    <i class="fa fa-star-o"></i>
+                                                    <i class="far fa-star"></i>
                                                 {% endif %}
                                             {% endfor %}
-                                            <span class="ms-1">{{ favorite.film.rating|floatformat:1 }}</span>
+                                            <span class="ms-1 text-gray-600">{{ favorite.film.rating|floatformat:1 }}</span>
                                         </div>
-                                        <a href="{% url 'film_detail' favorite.film.id %}" class="btn btn-sm btn-primary mt-2">
-                                            查看详情
+                                        <a href="{% url 'film_detail' favorite.film.id %}" class="btn btn-xs btn-primary w-100">
+                                            查看
                                         </a>
                                     </div>
                                 </div>
@@ -124,10 +252,91 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-center text-muted">暂无收藏内容</p>
+                    <div class="text-center py-6">
+                        <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-heart text-gray-400 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-500">暂无收藏内容</p>
+                        <a href="{% url 'index' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-film mr-2"></i>
+                            去发现电影
+                        </a>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 头像预览功能
+function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('avatarPreview');
+            const image = document.getElementById('previewImage');
+            image.src = e.target.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// 重置表单
+function resetForm() {
+    if (confirm('确定要重置所有修改吗？')) {
+        document.getElementById('profileForm').reset();
+        document.getElementById('avatarPreview').classList.add('hidden');
+    }
+}
+
+// 表单提交处理
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profileForm');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.innerHTML = '<span class="loading-spinner mr-2"></span>保存中...';
+        submitBtn.disabled = true;
+        
+        // 表单验证
+        const bio = document.getElementById('id_bio');
+        if (bio.value.length > 200) {
+            e.preventDefault();
+            showNotification('个人简介最多可输入200个字符', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
+    });
+    
+    // 添加平滑滚动效果
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // 数字动画效果
+    const counters = document.querySelectorAll('.font-bold.text-lg');
+    counters.forEach(counter => {
+        const target = parseInt(counter.textContent);
+        if (!isNaN(target)) {
+            animateCounter(counter, target, 1500);
+        }
+    });
+});
+</script>
 {% endblock %}

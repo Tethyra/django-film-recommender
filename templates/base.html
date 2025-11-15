@@ -15,110 +15,133 @@
     <style>
         /* 全局样式 */
         body {
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #fafafa;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            color: #262626;
         }
         
-        /* 导航栏样式 */
+        /* 导航栏样式 - Ins风格 */
         .navbar {
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white;
+            border-bottom: 1px solid #dbdbdb;
+            padding: 0.5rem 1rem;
         }
         
         .navbar-brand {
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
         }
         
         .nav-link {
-            transition: all 0.3s ease;
+            color: #262626 !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
         }
         
         .nav-link:hover {
-            color: #667eea !important;
+            color: #0095f6 !important;
+        }
+        
+        /* 用户头像导航 */
+        .user-avatar-nav {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #0095f6;
         }
         
         /* 主内容区域 */
         main {
             flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem 1rem;
         }
         
-        /* 卡片样式 */
+        /* 卡片样式 - Ins风格 */
         .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 12px;
             transition: all 0.3s ease;
+            margin-bottom: 24px;
         }
         
         .card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
         }
         
         .card-header {
-            border-radius: 10px 10px 0 0 !important;
-            border-bottom: none;
+            background-color: white;
+            border-bottom: 1px solid #dbdbdb;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1rem 1.25rem;
         }
         
-        /* 按钮样式 */
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        /* 按钮样式 - Ins风格 */
         .btn {
             border-radius: 8px;
-            transition: all 0.3s ease;
-            font-weight: 500;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.9rem;
         }
         
         .btn-primary {
-            background-color: #667eea;
-            border-color: #667eea;
+            background-color: #0095f6;
+            border-color: #0095f6;
+            color: white;
         }
         
         .btn-primary:hover {
-            background-color: #5a67d8;
-            border-color: #5a67d8;
-            transform: translateY(-2px);
+            background-color: #0078b6;
+            border-color: #0078b6;
+            transform: translateY(-1px);
         }
         
-        .btn-success {
-            background-color: #43e97b;
-            border-color: #43e97b;
+        .btn-outline-primary {
+            border-color: #0095f6;
+            color: #0095f6;
         }
         
-        .btn-success:hover {
-            background-color: #38f9d7;
-            border-color: #38f9d7;
-        }
-        
-        .btn-purple {
-            background-color: #a8edea;
-            border-color: #a8edea;
-            color: #667eea;
-        }
-        
-        .btn-purple:hover {
-            background-color: #fed6e3;
-            border-color: #fed6e3;
-            color: #667eea;
+        .btn-outline-primary:hover {
+            background-color: #f0f7ff;
+            border-color: #0095f6;
+            color: #0095f6;
         }
         
         /* 表单样式 */
         .form-control {
             border-radius: 8px;
-            border: 1px solid #ced4da;
-            transition: all 0.3s ease;
+            border: 1px solid #dbdbdb;
+            transition: all 0.2s ease;
+            padding: 0.75rem 1rem;
+            background-color: #fafafa;
         }
         
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #0095f6;
+            box-shadow: 0 0 0 0.2rem rgba(0, 149, 246, 0.1);
             outline: none;
+            background-color: white;
         }
         
         /* 页脚样式 */
         footer {
-            background-color: #2d3748;
-            color: #cbd5e0;
+            background-color: white;
+            border-top: 1px solid #dbdbdb;
             padding: 2rem 0;
             margin-top: auto;
         }
@@ -126,11 +149,15 @@
         /* 响应式调整 */
         @media (max-width: 768px) {
             .navbar-brand {
-                font-size: 1rem;
+                font-size: 1.2rem;
             }
             
             .card {
                 margin-bottom: 1rem;
+            }
+            
+            main {
+                padding: 1rem 0.5rem;
             }
         }
         
@@ -138,7 +165,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -146,60 +173,198 @@
             }
         }
         
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
         .fade-in {
-            animation: fadeIn 0.6s ease-out;
+            animation: fadeIn 0.5s ease-out;
         }
         
-        /* 自定义工具类 */
-        .text-primary {
-            color: #667eea !important;
+        .scale-in {
+            animation: scaleIn 0.3s ease-out;
         }
         
-        .bg-primary {
-            background-color: #667eea !important;
+        /* 电影卡片特殊样式 */
+        .film-card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .hover-shadow:hover {
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        .film-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        }
+        
+        /* 海报图片样式 - 优化适配 */
+        .film-poster {
+            object-fit: cover;
+            width: 100%;
+            height: 280px;
+            border-radius: 16px 16px 0 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .film-card:hover .film-poster {
+            transform: scale(1.05);
+        }
+        
+        /* 评分星星样式 */
+        .rating {
+            color: #f5c518;
+        }
+        
+        .rating .fa-star {
+            margin-right: 2px;
+        }
+        
+        /* 标签样式 */
+        .badge {
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* 加载动画 */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 149, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: #0095f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* 通知提示 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 300px;
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* 悬停放大效果 */
+        .hover-zoom {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-zoom:hover {
+            transform: scale(1.02);
+        }
+        
+        /* 文本渐变 */
+        .text-gradient {
+            background: linear-gradient(135deg, #0095f6, #5851db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* 背景渐变卡片 */
+        .gradient-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        /* 统计数字动画 */
+        .counter {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0095f6;
+            transition: all 0.3s ease;
+        }
+        
+        /* 搜索框样式 */
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            border-radius: 25px;
+            border: 1px solid #dbdbdb;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #0095f6;
+            box-shadow: 0 0 0 0.2rem rgba(0, 149, 246, 0.1);
+            outline: none;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8e8e8e;
         }
     </style>
     
     {% block extra_css %}{% endblock %}
-<style>
-
-/* 海报图片样式 */
-.film-poster {
-    object-fit: cover;
-    width: 100%;
-    height: 200px;
-    border-radius: 4px 4px 0 0;
-}
-
-.film-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 100%;
-}
-
-.film-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .film-poster {
-        height: 150px;
-    }
-}
-</style>
 </head>
 <body>
     <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'index' %}">
+            <a class="navbar-brand text-gradient" href="{% url 'index' %}">
                 <i class="fas fa-film mr-2"></i>
-                影视推荐系统
+                FilmInsight
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -207,32 +372,32 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if current_page == 'home' %}active{% endif %}" href="{% url 'index' %}">
+                        <a class="nav-link {% if current_page == 'home' %}active fw-bold{% endif %}" href="{% url 'index' %}">
                             <i class="fas fa-home mr-1"></i>
                             首页
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if current_page == 'category' %}active{% endif %}" href="{% url 'category_list' %}">
+                        <a class="nav-link {% if current_page == 'category' %}active fw-bold{% endif %}" href="{% url 'category_list' %}">
                             <i class="fas fa-th-list mr-1"></i>
                             分类浏览
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if current_page == 'rankings' %}active{% endif %}" href="{% url 'rankings' %}">
+                        <a class="nav-link {% if current_page == 'rankings' %}active fw-bold{% endif %}" href="{% url 'rankings' %}">
                             <i class="fas fa-trophy mr-1"></i>
                             排行榜
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if current_page == 'community' %}active{% endif %}" href="{% url 'community' %}">
+                        <a class="nav-link {% if current_page == 'community' %}active fw-bold{% endif %}" href="{% url 'community' %}">
                             <i class="fas fa-comments mr-1"></i>
                             社区讨论
                         </a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link {% if current_page == 'charts' %}active{% endif %}" href="{% url 'charts_dashboard' %}">
+                        <a class="nav-link {% if current_page == 'charts' %}active fw-bold{% endif %}" href="{% url 'charts_dashboard' %}">
                             <i class="fas fa-chart-bar mr-1"></i>
                             数据可视化
                         </a>
@@ -244,35 +409,44 @@
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-bullseye mr-1"></i>
-                            {{ user.username }}
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-avatar-nav mr-2">
+                            {% else %}
+                                <div class="bg-gray-200 rounded-circle w-8 h-8 d-flex align-items-center justify-content-center mr-2">
+                                    <span class="text-gray-600 font-medium">{{ user.username|first|upper }}</span>
+                                </div>
+                            {% endif %}
+                            <span class="d-none d-md-inline">{{ user.username }}</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{% url 'profile' %}">
-                                <i class="fas fa-user mr-2"></i>个人资料
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item d-flex align-items-center" href="{% url 'profile' %}">
+                                <i class="fas fa-user mr-3 text-gray-600"></i>个人资料
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'history' %}">
-                                <i class="fas fa-history mr-2"></i>观看历史
+                            <li><a class="dropdown-item d-flex align-items-center" href="{% url 'history' %}">
+                                <i class="fas fa-history mr-3 text-gray-600"></i>观看历史
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'favorites' %}">
-                                <i class="fas fa-heart mr-2"></i>我的收藏
+                            <li><a class="dropdown-item d-flex align-items-center" href="{% url 'favorites' %}">
+                                <i class="fas fa-heart mr-3 text-gray-600"></i>我的收藏
+                            </a></li>
+                            <li><a class="dropdown-item d-flex align-items-center" href="{% url 'my_reviews' %}">
+                                <i class="fas fa-star mr-3 text-gray-600"></i>我的评论
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                <i class="fas fa-sign-out-alt mr-2"></i>退出登录
+                            <li><a class="dropdown-item d-flex align-items-center text-danger" href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt mr-3"></i>退出登录
                             </a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">
+                        <a class="nav-link btn btn-outline-primary" href="{% url 'login' %}">
                             <i class="fas fa-sign-in-alt mr-1"></i>
                             登录
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">
+                    <li class="nav-item ms-2">
+                        <a class="nav-link btn btn-primary" href="{% url 'register' %}">
                             <i class="fas fa-user-plus mr-1"></i>
                             注册
                         </a>
@@ -285,11 +459,19 @@
 
     <!-- 消息提示 -->
     {% if messages %}
-    <div class="container mt-3">
+    <div class="notification">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-            <i class="fas fa-info-circle mr-2"></i>
-            {{ message }}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg">
+            <div class="d-flex align-items-center">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle mr-3 text-green-500"></i>
+                {% elif message.tags == 'error' %}
+                    <i class="fas fa-exclamation-circle mr-3 text-red-500"></i>
+                {% else %}
+                    <i class="fas fa-info-circle mr-3 text-blue-500"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
@@ -297,7 +479,7 @@
     {% endif %}
 
     <!-- 主要内容 -->
-    <main class="py-4">
+    <main>
         {% block content %}{% endblock %}
     </main>
 
@@ -306,36 +488,56 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5 class="text-white mb-3">
+                    <h5 class="text-gradient mb-3">
                         <i class="fas fa-film mr-2"></i>
-                        影视推荐系统
+                        FilmInsight
                     </h5>
-                    <p class="text-gray-300">
+                    <p class="text-gray-600">
                         发现精彩，分享感动，让每一部电影都找到懂它的人。
                     </p>
+                    <div class="mt-3 d-flex space-x-3">
+                        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fab fa-weibo fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fab fa-wechat fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fab fa-qq fa-lg"></i>
+                        </a>
+                    </div>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h5 class="text-white mb-3">快速链接</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'index' %}" class="text-gray-300">首页</a></li>
-                        <li><a href="{% url 'category_list' %}" class="text-gray-300">分类浏览</a></li>
-                        <li><a href="{% url 'rankings' %}" class="text-gray-300">排行榜</a></li>
-                        <li><a href="{% url 'community' %}" class="text-gray-300">社区讨论</a></li>
+                    <h5 class="text-gray-800 mb-3">快速链接</h5>
+                    <ul class="list-unstyled space-y-2">
+                        <li><a href="{% url 'index' %}" class="text-gray-600 hover:text-gray-900 transition-colors">首页</a></li>
+                        <li><a href="{% url 'category_list' %}" class="text-gray-600 hover:text-gray-900 transition-colors">分类浏览</a></li>
+                        <li><a href="{% url 'rankings' %}" class="text-gray-600 hover:text-gray-900 transition-colors">排行榜</a></li>
+                        <li><a href="{% url 'community' %}" class="text-gray-600 hover:text-gray-900 transition-colors">社区讨论</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h5 class="text-white mb-3">联系我们</h5>
-                    <ul class="list-unstyled text-gray-300">
-                        <li><i class="fas fa-envelope mr-2"></i>contact@filmrecommender.com</li>
-                        <li><i class="fas fa-phone mr-2"></i>400-123-4567</li>
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>北京市朝阳区</li>
+                    <h5 class="text-gray-800 mb-3">联系我们</h5>
+                    <ul class="list-unstyled text-gray-600 space-y-2">
+                        <li class="d-flex align-items-center">
+                            <i class="fas fa-envelope mr-3 text-gray-400"></i>
+                            contact@filminsight.com
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <i class="fas fa-phone mr-3 text-gray-400"></i>
+                            400-123-4567
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <i class="fas fa-map-marker-alt mr-3 text-gray-400"></i>
+                            北京市朝阳区
+                        </li>
                     </ul>
                 </div>
             </div>
-            <hr class="border-gray-600 my-4">
+            <hr class="border-gray-200 my-4">
             <div class="text-center">
-                <p class="text-gray-300 mb-0">
-                    &copy; 2025 影视推荐系统. 保留所有权利.
+                <p class="text-gray-500 mb-0">
+                    &copy; 2025 FilmInsight. 保留所有权利.
                 </p>
             </div>
         </div>
@@ -349,19 +551,24 @@
         // 页面加载完成后的初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 添加淡入动画
-            const elements = document.querySelectorAll('.card, .alert');
-            elements.forEach((element, index) => {
-                setTimeout(() => {
-                    element.style.opacity = '0';
-                    element.style.transform = 'translateY(20px)';
-                    element.style.transition = 'all 0.6s ease-out';
-                    
+            const animateElements = () => {
+                const elements = document.querySelectorAll('.card, .alert, .film-card');
+                elements.forEach((element, index) => {
                     setTimeout(() => {
-                        element.style.opacity = '1';
-                        element.style.transform = 'translateY(0)';
-                    }, 100);
-                }, index * 100);
-            });
+                        element.style.opacity = '0';
+                        element.style.transform = 'translateY(20px)';
+                        element.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                        
+                        setTimeout(() => {
+                            element.style.opacity = '1';
+                            element.style.transform = 'translateY(0)';
+                        }, 100);
+                    }, index * 100);
+                });
+            };
+            
+            // 初始化动画
+            animateElements();
             
             // 平滑滚动
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -377,13 +584,13 @@
                 });
             });
             
-            // 表单提交确认
+            // 表单提交确认和加载状态
             document.querySelectorAll('form').forEach(form => {
                 form.addEventListener('submit', function(e) {
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         const originalText = submitBtn.innerHTML;
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>处理中...';
+                        submitBtn.innerHTML = '<span class="loading-spinner mr-2"></span>处理中...';
                         submitBtn.disabled = true;
                         
                         // 防止重复提交
@@ -394,15 +601,70 @@
                     }
                 });
             });
+            
+            // 电影卡片悬停效果增强
+            document.querySelectorAll('.film-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // 滚动时导航栏效果
+            window.addEventListener('scroll', function() {
+                const navbar = document.querySelector('.navbar');
+                if (window.scrollY > 10) {
+                    navbar.style.backgroundColor = 'white';
+                    navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
+                } else {
+                    navbar.style.backgroundColor = 'white';
+                    navbar.style.boxShadow = 'none';
+                }
+            });
+            
+            // 图片懒加载
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src || img.src;
+                            img.classList.remove('lazy');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('img[data-src]').forEach(img => {
+                    imageObserver.observe(img);
+                });
+            }
         });
         
-        // 工具函数
+        // 工具函数 - 显示通知
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
-            notification.className = `alert alert-${type} alert-dismissible fade show fixed-top end-0 m-3 z-50`;
+            notification.className = `notification alert alert-${type} alert-dismissible fade show shadow-lg`;
+            
+            let icon = 'info-circle';
+            let colorClass = 'text-blue-500';
+            
+            if (type === 'success') {
+                icon = 'check-circle';
+                colorClass = 'text-green-500';
+            } else if (type === 'error') {
+                icon = 'exclamation-circle';
+                colorClass = 'text-red-500';
+            }
+            
             notification.innerHTML = `
-                <i class="fas fa-info-circle mr-2"></i>
-                ${message}
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${icon} mr-3 ${colorClass}"></i>
+                    <span>${message}</span>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
             
@@ -412,6 +674,29 @@
                 notification.remove();
             }, 5000);
         }
+        
+        // 数字动画函数
+        function animateCounter(element, target, duration = 2000) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            function updateCounter() {
+                start += increment;
+                if (start < target) {
+                    element.textContent = Math.floor(start).toLocaleString();
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target.toLocaleString();
+                }
+            }
+            
+            updateCounter();
+        }
+        
+        // 添加页面加载完成的提示
+        window.addEventListener('load', function() {
+            console.log('FilmInsight 加载完成');
+        });
     </script>
     
     {% block extra_js %}{% endblock %}

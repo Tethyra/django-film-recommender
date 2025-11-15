@@ -21,7 +21,7 @@
                 {% if film.poster %}
                     <img src="{% static film.poster|default:"images/default_poster.jpg" %}" alt="{{ film.title }}" class="card-img-top" height="200" style="object-fit: cover;">
                 {% elif film.poster_url %}
-                    <img src="/static/posters/{{ film.title|slugify }}_medium.jpg" alt="{{ film.title }}" class="card-img-top film-poster" height="200" style="object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
+                    <img src="/media/posters/{{ film.title|slugify }}_medium.jpg" alt="{{ film.title }}" class="card-img-top film-poster" height="200" style="object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Poster';">
                 {% else %}
                     <img src="https://via.placeholder.com/300x200?text=No+Poster" alt="{{ film.title }}" class="card-img-top" height="200">
                 {% endif %}

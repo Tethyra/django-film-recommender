@@ -1,222 +1,497 @@
 {% extends 'base.html' %}
-{% load static %}
-
 {% block content %}
-<div class="container mt-4">
+<div class="row gap-6">
     <!-- 电影海报和基本信息 -->
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <!-- 使用电影海报的URL -->
+    <div class="col-md-3">
+        <div class="card film-card hover-zoom fade-in">
+            <div class="position-relative">
                 <img src="{{ film.poster.url }}" 
                      alt="{{ film.title }}" 
-                     class="card-img-top"
-                     onerror="this.onerror=null;this.src='https://via.placehold.com/400x600?text=No+Poster';">
+                     class="film-poster"
+                     onerror="this.onerror=null;this.src='https://via.placehold.com/300x450?text=No+Poster';">
+                
+                <!-- 评分标签 -->
+                <div class="position-absolute top-3 left-3 bg-primary text-white px-3 py-1 rounded-full font-bold">
+                    {{ film.rating|floatformat:1 }}
+                </div>
+                
+                <!-- 收藏按钮 -->
+                {% if user.is_authenticated %}
+                <button class="position-absolute top-3 right-3 bg-white/90 text-gray-600 hover:text-red-500 w-10 h-10 rounded-full flex items-center justify-center transition-colors add-to-favorite"
+                        data-film-id="{{ film.id }}"
+                        {% if is_favorite %}style="color: #ef4444;"{% endif %}>
+                    <i class="fas fa-heart {% if is_favorite %}fas{% else %}far{% endif %}"></i>
+                </button>
+                {% endif %}
             </div>
-        </div>
-        
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="card-title">{{ film.title }}</h2>
-                    
-                    <div class="rating mb-3">
-                        {% for i in "12345"|make_list %}
-                            {% if forloop.counter <= film.rating|floatformat:0 %}
-                                <i class="fa fa-star"></i>
-                            {% else %}
-                                <i class="fa fa-star-o"></i>
-                            {% endif %}
-                        {% endfor %}
-                        <span class="ms-2">{{ film.rating|floatformat:1 }} ({{ film.rating_count }}人评分)</span>
+            
+            <div class="card-body p-4">
+                <h4 class="card-title font-bold mb-2">{{ film.title }}</h4>
+                <p class="text-gray-600 text-sm mb-3">
+                    {{ film.release_year }} • {{ film.duration }}分钟
+                </p>
+                
+                <!-- 电影分类 -->
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                    {% for category in film.categories.all %}
+                    <span class="badge bg-gray-100 text-gray-800">{{ category.name }}</span>
+                    {% endfor %}
+                </div>
+                
+                <!-- 导演和演员 -->
+                <div class="space-y-2 text-sm mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-user w-5 text-gray-500"></i>
+                        <span class="text-gray-700 ml-2">导演: {{ film.director }}</span>
                     </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>导演:</strong> {{ film.director }}</p>
-                            <p><strong>演员:</strong> {{ film.actors }}</p>
-                            <p><strong>上映日期:</strong> {{ film.release_date|date:"Y年m月d日" }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>分类:</strong> 
-                                {% for category in film.categories.all %}
-                                    <span class="badge bg-primary">{{ category.name }}</span>
-                                {% endfor %}
-                            </p>
-                            <p><strong>时长:</strong> {{ film.duration }}分钟</p>
-                            <p><strong>语言:</strong> {{ film.language }}</p>
-                        </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-users w-5 text-gray-500"></i>
+                        <span class="text-gray-700 ml-2">主演: {{ film.actors }}</span>
                     </div>
-                    
-                    <div class="mb-3">
-                        <h5>剧情简介</h5>
-                        <p class="card-text">{{ film.description }}</p>
-                    </div>
-                    
-                    <!-- 操作按钮 -->
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="space-y-2">
+                    <button class="btn btn-primary w-100" onclick="playTrailer()">
+                        <i class="fas fa-play mr-2"></i>
+                        播放预告片
+                    </button>
                     <div class="d-flex gap-2">
-                        {% if user.is_authenticated %}
-                            <button class="btn btn-primary" onclick="addWatchlist({{ film.id }})">
-                                <i class="fa fa-plus"></i> 加入观看列表
-                            </button>
-                            <button class="btn btn-success" onclick="toggleFavorite({{ film.id }})">
-                                <i class="fa fa-heart"></i> {% if is_favorited %}已收藏{% else %}收藏{% endif %}
-                            </button>
-                        {% else %}
-                            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">
-                                <i class="fa fa-sign-in"></i> 登录后操作
-                            </a>
-                        {% endif %}
+                        <button class="btn btn-outline-primary flex-1" onclick="shareFilm()">
+                            <i class="fas fa-share-alt mr-1"></i>
+                            分享
+                        </button>
+                        <button class="btn btn-outline-primary flex-1" onclick="addToWatchlist()">
+                            <i class="fas fa-plus mr-1"></i>
+                            想看
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- 评论区 -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fa fa-comments"></i> 观众评论</h5>
-        </div>
-        <div class="card-body">
-            <!-- 添加评论 -->
-            {% if user.is_authenticated %}
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h6 class="card-title">发表评论</h6>
-                    <form id="commentForm" onsubmit="submitComment(event, {{ film.id }})">
-                        <div class="mb-3">
-                            <label for="commentRating" class="form-label">评分</label>
-                            <select class="form-select" id="commentRating" required>
-                                <option value="">请选择评分</option>
-                                <option value="5">★★★★★</option>
-                                <option value="4">★★★★☆</option>
-                                <option value="3">★★★☆☆</option>
-                                <option value="2">★★☆☆☆</option>
-                                <option value="1">★☆☆☆☆</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="commentContent" class="form-label">评论内容</label>
-                            <textarea class="form-control" id="commentContent" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">提交评论</button>
-                    </form>
-                </div>
+    <!-- 电影详情 -->
+    <div class="col-md-9">
+        <!-- 电影简介 -->
+        <div class="card mb-6 fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>
+                    电影简介
+                </h5>
             </div>
-            {% endif %}
-            
-            <!-- 评论列表 -->
-            <div id="commentsList">
-                {% for comment in comments %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="card-subtitle mb-2 text-muted">{{ comment.user.username }}</h6>
-                            <small class="text-muted">{{ comment.created_at|date:"Y-m-d H:i" }}</small>
+            <div class="card-body">
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 leading-relaxed">{{ film.description|linebreaks }}</p>
+                </div>
+                
+                <!-- 详细信息 -->
+                <div class="row mt-6 gap-6">
+                    <div class="col-md-6">
+                        <h6 class="font-semibold mb-3">详细信息</h6>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">上映日期:</span>
+                                <span class="text-gray-800">{{ film.release_date|date:"Y年m月d日" }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">语言:</span>
+                                <span class="text-gray-800">{{ film.language }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">制片国家/地区:</span>
+                                <span class="text-gray-800">{{ film.country }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">类型:</span>
+                                <span class="text-gray-800">
+                                    {% for category in film.categories.all|slice:":3" %}
+                                        {{ category.name }}{% if not forloop.last %}、{% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
                         </div>
-                        <div class="rating mb-2">
-                            {% for i in "12345"|make_list %}
-                                {% if forloop.counter <= comment.rating %}
-                                    <i class="fa fa-star"></i>
-                                {% else %}
-                                    <i class="fa fa-star-o"></i>
-                                {% endif %}
-                            {% endfor %}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="font-semibold mb-3">观众评价</h6>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <div class="text-3xl font-bold text-primary mr-4">{{ film.rating|floatformat:1 }}</div>
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-1">
+                                        <div class="rating mr-2">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= film.rating|floatformat:0 %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <span class="text-gray-600 text-sm">({{ film.rating_count }}人评分)</span>
+                                    </div>
+                                    <!-- 评分分布 -->
+                                    <div class="space-y-1">
+                                        {% for score in rating_distribution %}
+                                        <div class="flex items-center text-xs">
+                                            <span class="w-8">{{ score.rating }}星</span>
+                                            <div class="flex-1 bg-gray-200 rounded-full h-2 mx-2">
+                                                <div class="bg-primary h-2 rounded-full" style="width: {{ score.percentage }}%"></div>
+                                            </div>
+                                            <span class="text-gray-600">{{ score.percentage }}%</span>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p class="card-text">{{ comment.content }}</p>
                     </div>
                 </div>
-                {% empty %}
-                <div class="alert alert-info text-center">
-                    <i class="fa fa-info-circle"></i> 暂无评论，快来抢沙发吧！
+            </div>
+        </div>
+        
+        <!-- 评论区 -->
+        <div class="card mb-6 fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-comments text-primary mr-2"></i>
+                    观众评论 ({{ reviews.count }})
+                </h5>
+                {% if user.is_authenticated %}
+                <button class="btn btn-sm btn-primary" onclick="showReviewForm()">
+                    <i class="fas fa-pencil-alt mr-1"></i>
+                    写评论
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <!-- 写评论表单 -->
+                {% if user.is_authenticated %}
+                <div id="reviewForm" class="mb-6 hidden">
+                    <form method="post" action="{% url 'add_review' film.id %}" id="newReviewForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">评分</label>
+                            <div class="rating-input d-flex gap-2 mb-3">
+                                {% for i in "12345"|make_list %}
+                                <i class="fas fa-star text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors"
+                                   data-rating="{{ forloop.counter }}"></i>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="rating" id="reviewRating" value="5">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">评论内容</label>
+                            <textarea class="form-control" name="content" rows="4" 
+                                      placeholder="分享你的观影感受..." required></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-send mr-2"></i>
+                                发表评论
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="hideReviewForm()">
+                                取消
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                {% endfor %}
+                {% endif %}
+                
+                <!-- 评论列表 -->
+                {% if reviews %}
+                <div class="space-y-4">
+                    {% for review in reviews %}
+                    <div class="border-b border-gray-100 pb-4 last:border-0">
+                        <div class="flex items-start gap-3">
+                            <!-- 用户头像 -->
+                            <div class="flex-shrink-0">
+                                {% if review.user.profile.avatar %}
+                                    <img src="{{ review.user.profile.avatar.url }}" 
+                                         alt="{{ review.user.username }}" 
+                                         class="w-10 h-10 rounded-full object-cover">
+                                {% else %}
+                                    <div class="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center">
+                                        <span class="text-gray-600 font-medium">{{ review.user.username|first|upper }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- 评论内容 -->
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h6 class="font-semibold">{{ review.user.username }}</h6>
+                                    <span class="text-gray-500 text-sm">{{ review.created_at|date:"Y-m-d H:i" }}</span>
+                                </div>
+                                
+                                <div class="rating mb-2">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                
+                                <p class="text-gray-700 mb-2">{{ review.content }}</p>
+                                
+                                <!-- 评论操作 -->
+                                <div class="flex items-center gap-4 text-sm text-gray-500">
+                                    <button class="hover:text-primary transition-colors">
+                                        <i class="far fa-thumbs-up mr-1"></i>
+                                        赞 ({{ review.likes.count }})
+                                    </button>
+                                    {% if user == review.user %}
+                                    <button class="hover:text-red-500 transition-colors" onclick="deleteReview({{ review.id }})">
+                                        <i class="fas fa-trash mr-1"></i>
+                                        删除
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- 分页 -->
+                {% if reviews.has_other_pages %}
+                <nav class="mt-6">
+                    <ul class="pagination justify-content-center">
+                        {% if reviews.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ reviews.previous_page_number }}">上一页</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for i in reviews.paginator.page_range %}
+                        <li class="page-item {% if reviews.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endfor %}
+                        
+                        {% if reviews.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ reviews.next_page_number }}">下一页</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-6">
+                    <div class="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-comment-dots text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-500">暂无评论</p>
+                    {% if user.is_authenticated %}
+                    <button class="btn btn-primary mt-3" onclick="showReviewForm()">
+                        <i class="fas fa-pencil-alt mr-2"></i>
+                        写第一条评论
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 相关推荐 -->
+        <div class="card fade-in">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-thumbs-up text-primary mr-2"></i>
+                    相关推荐
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    {% for related_film in related_films %}
+                    <div class="col-md-3 col-sm-6">
+                        <div class="film-card hover-zoom">
+                            <img src="{{ related_film.poster.url }}" 
+                                 alt="{{ related_film.title }}" 
+                                 class="film-poster"
+                                 height="200"
+                                 onerror="this.onerror=null;this.src='https://via.placehold.com/300x200?text=No+Poster';">
+                            <div class="card-body p-3">
+                                <h6 class="card-title font-semibold mb-2 line-clamp-1">{{ related_film.title }}</h6>
+                                <div class="rating mb-2">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= related_film.rating|floatformat:0 %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1 text-gray-600 text-sm">{{ related_film.rating|floatformat:1 }}</span>
+                                </div>
+                                <a href="{% url 'film_detail' related_film.id %}" class="btn btn-sm btn-primary w-100">
+                                    查看详情
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4">
+                        <p class="text-gray-500">暂无相关推荐</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-// 添加到观看列表
-function addWatchlist(filmId) {
-    fetch(`/add_watchlist/${filmId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('已成功添加到观看列表！');
-        } else {
-            alert('添加失败：' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('操作失败，请重试！');
-    });
-}
-
-// 收藏/取消收藏
-function toggleFavorite(filmId) {
-    fetch(`/toggle_favorite/${filmId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('操作失败：' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('操作失败，请重试！');
-    });
-}
-
-// 提交评论
-function submitComment(event, filmId) {
-    event.preventDefault();
+// 收藏电影功能
+document.addEventListener('DOMContentLoaded', function() {
+    // 收藏按钮
+    const favoriteBtn = document.querySelector('.add-to-favorite');
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', function() {
+            const filmId = this.dataset.filmId;
+            const icon = this.querySelector('i');
+            
+            this.disabled = true;
+            
+            // 模拟AJAX请求
+            setTimeout(() => {
+                if (icon.classList.contains('far')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    this.style.color = '#ef4444';
+                    showNotification('已添加到收藏', 'success');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    this.style.color = '#6b7280';
+                    showNotification('已从收藏移除', 'info');
+                }
+                
+                this.disabled = false;
+            }, 600);
+        });
+    }
     
-    const rating = document.getElementById('commentRating').value;
-    const content = document.getElementById('commentContent').value;
-    
-    fetch(`/add_comment/${filmId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            rating: rating,
-            content: content
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('评论失败：' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('评论失败，请重试！');
+    // 评分选择
+    const ratingStars = document.querySelectorAll('.rating-input .fa-star');
+    ratingStars.forEach(star => {
+        star.addEventListener('click', function() {
+            const rating = parseInt(this.dataset.rating);
+            document.getElementById('reviewRating').value = rating;
+            
+            // 更新星星显示
+            ratingStars.forEach(s => {
+                const sRating = parseInt(s.dataset.rating);
+                if (sRating <= rating) {
+                    s.classList.remove('text-gray-300');
+                    s.classList.add('text-yellow-400');
+                } else {
+                    s.classList.remove('text-yellow-400');
+                    s.classList.add('text-gray-300');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
+            ratingStars.forEach(s => {
+                const sRating = parseInt(s.dataset.rating);
+                if (sRating <= rating) {
+                    s.classList.add('text-yellow-400');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseleave', function() {
+            const currentRating = parseInt(document.getElementById('reviewRating').value);
+            ratingStars.forEach(s => {
+                const sRating = parseInt(s.dataset.rating);
+                if (sRating <= currentRating) {
+                    s.classList.add('text-yellow-400');
+                } else {
+                    s.classList.remove('text-yellow-400');
+                }
+            });
+        });
     });
+    
+    // 评论表单提交
+    const reviewForm = document.getElementById('newReviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<span class="loading-spinner mr-2"></span>发表中...';
+            submitBtn.disabled = true;
+        });
+    }
+});
+
+// 显示/隐藏评论表单
+function showReviewForm() {
+    document.getElementById('reviewForm').classList.remove('hidden');
+    document.getElementById('reviewForm').scrollIntoView({ behavior: 'smooth' });
 }
 
-// 获取CSRF Token
+function hideReviewForm() {
+    document.getElementById('reviewForm').classList.add('hidden');
+}
+
+// 播放预告片
+function playTrailer() {
+    showNotification('预告片功能开发中，敬请期待！', 'info');
+}
+
+// 分享电影
+function shareFilm() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ film.title }}',
+            text: '推荐一部好电影给你：{{ film.title }}',
+            url: window.location.href
+        });
+    } else {
+        // 复制链接到剪贴板
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showNotification('链接已复制到剪贴板', 'success');
+        }).catch(() => {
+            showNotification('分享功能暂不可用', 'error');
+        });
+    }
+}
+
+// 添加到想看列表
+function addToWatchlist() {
+    showNotification('已添加到想看列表', 'success');
+}
+
+// 删除评论
+function deleteReview(reviewId) {
+    if (confirm('确定要删除这条评论吗？')) {
+        fetch(`/reviews/${reviewId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                showNotification('删除失败', 'error');
+            }
+        });
+    }
+}
+
+// 获取CSRF令牌
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
