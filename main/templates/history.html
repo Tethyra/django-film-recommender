@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Watch History - Film Recommender{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Your Watch History</h1>
+    
+    {% if watch_history %}
+    <div class="row">
+        {% for item in watch_history %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{{ item.movie.poster_url }}" 
+                     class="card-img-top" 
+                     alt="{{ item.movie.title }}"
+                     style="height: 300px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.movie.title }}</h5>
+                    <p class="card-text text-muted">
+                        {{ item.movie.release_date|date:"Y" }} • 
+                        {{ item.timestamp|date:"F j, Y, g:i a" }}
+                    </p>
+                    <a href="{% url 'movie_detail' item.movie.id %}" 
+                       class="btn btn-primary btn-sm">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% else %}
+    <div class="alert alert-info">
+        Your watch history is empty. Start watching movies to see your history here!
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

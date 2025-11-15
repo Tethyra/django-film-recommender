@@ -1,220 +1,172 @@
+<!-- history.html - 修复：使用预处理的formatted_duration字段 -->
 {% extends 'base.html' %}
 
 {% block title %}观看历史 - 电影推荐系统{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="card mb-4">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fa fa-clock-o"></i> 我的观看历史</h5>
-                <div>
-                    <button class="btn btn-sm btn-outline-danger" id="clearHistoryBtn">
-                        <i class="fa fa-trash"></i> 清空历史
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="card-body">
-            {% if history %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th style="width: 100px;">海报</th>
-                            <th>电影信息</th>
-                            <th style="width: 150px;">观看时间</th>
-                            <th style="width: 150px;">观看时长</th>
-                            <th style="width: 120px;">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in history %}
-                        <tr class="align-middle">
-                            <td>
-                                {% if record.film.poster %}
-                                <img src="/media/{{ record.film.poster }}" alt="{{ record.film.title }}" class="img-thumbnail" style="width: 80px; height: 120px; object-fit: cover;">
-                                {% else %}
-                                <img src="https://via.placeholder.com/80x120?text=No+Poster" alt="{{ record.film.title }}" class="img-thumbnail" style="width: 80px; height: 120px;">
-                                {% endif %}
-                            </td>
-                            <td>
-                                <h6 class="mb-1">
-                                    <a href="{% url 'film_detail' record.film.id %}" class="text-decoration-none">{{ record.film.title }}</a>
-                                </h6>
-                                <p class="mb-1 text-muted">
-                                    <small>
-                                        导演: {{ record.film.director|default:"未知" }}<br>
-                                        演员: {{ record.film.actors|default:"未知" }}<br>
-                                        评分: 
-                                        {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= record.film.rating|floatformat:0 %}
-                                        <i class="fa fa-star text-warning"></i>
-                                        {% else %}
-                                        <i class="fa fa-star-o text-warning"></i>
-                                        {% endif %}
-                                        {% endfor %}
-                                        {{ record.film.rating|floatformat:1 }}
-                                    </small>
-                                </p>
-                                <div>
+<div class="container mt-4">
+    <h1 class="mb-4">我的观看历史</h1>
+    
+    {% if history %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>电影信息</th>
+                    <th>观看时间</th>
+                    <th>观看时长</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in history %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if record.film.poster %}
+                            <img src="{{ record.film.poster.url }}" alt="{{ record.film.title }}" class="mr-3" style="width: 80px; height: 120px; object-fit: cover;">
+                            {% else %}
+                            <div class="mr-3" style="width: 80px; height: 120px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                <span class="text-muted">无海报</span>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h5 class="mb-1">
+                                    <a href="{% url 'film_detail' record.film.id %}" class="text-decoration-none text-dark">{{ record.film.title }}</a>
+                                </h5>
+                                <p class="mb-0 text-muted">{{ record.film.director }}</p>
+                                <p class="mb-0 text-muted">
                                     {% for category in record.film.categories.all|slice:":2" %}
-                                    <span class="badge bg-primary">{{ category.name }}</span>
+                                    <span class="badge badge-secondary">{{ category.name }}</span>
                                     {% endfor %}
-                                </div>
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    {{ record.watch_time|date:"Y-m-d" }}<br>
-                                    {{ record.watch_time|date:"H:i" }}
-                                </small>
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    {% if record.watch_duration > 3600 %}
-                                    {{ record.watch_duration|div:"3600" }}小时
-                                    {% endif %}
-                                    {% if record.watch_duration > 60 %}
-                                    {{ record.watch_duration|div:"60"|mod:"60" }}分钟
-                                    {% endif %}
-                                    {{ record.watch_duration|mod:"60" }}秒
-                                </small>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'film_detail' record.film.id %}" class="btn btn-outline-primary" title="继续观看">
-                                        <i class="fa fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-danger delete-history-btn" data-id="{{ record.id }}" title="删除记录">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- 分页 -->
-            {% if history.has_other_pages %}
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    {% if history.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ history.previous_page_number }}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    
-                    {% for i in history.paginator.page_range %}
-                    {% if history.number == i %}
-                    <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
-                    {% elif i > history.number|add:'-3' and i < history.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                    {% endif %}
-                    {% endfor %}
-                    
-                    {% if history.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ history.next_page_number }}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
-            {% else %}
-            <div class="text-center py-5">
-                <div class="mb-3">
-                    <i class="fa fa-clock-o fa-3x text-muted"></i>
-                </div>
-                <h5 class="text-muted mb-2">暂无观看历史</h5>
-                <p class="text-muted mb-4">您还没有观看过任何电影，快去发现精彩内容吧！</p>
-                <a href="{% url 'index' %}" class="btn btn-primary">
-                    <i class="fa fa-home"></i> 回到首页
-                </a>
-            </div>
-            {% endif %}
-        </div>
+                                </p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {{ record.watch_time|date:"Y-m-d" }}<br>
+                        {{ record.watch_time|date:"H:i" }}
+                    </td>
+                    <td>
+                        <!-- 修复：使用在视图中预处理好的formatted_duration字段 -->
+                        {{ record.formatted_duration }}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger remove-history" data-id="{{ record.id }}">
+                            删除
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+    
+    <!-- 分页 -->
+    {% if history.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if history.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ history.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for i in history.paginator.page_range %}
+            {% if history.number == i %}
+            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+            {% elif i > history.number|add:'-3' and i < history.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if history.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ history.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-history text-muted" style="font-size: 48px;"></i>
+        <h3 class="mt-3 text-muted">暂无观看历史</h3>
+        <p class="text-muted">快去观看一些电影吧！</p>
+        <a href="{% url 'index' %}" class="btn btn-primary mt-3">浏览电影</a>
+    </div>
+    {% endif %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-$(document).ready(function() {
-    // 删除单条历史记录
-    $('.delete-history-btn').on('click', function() {
-        var recordId = $(this).data('id');
-        var row = $(this).closest('tr');
+// 删除观看历史
+document.querySelectorAll('.remove-history').forEach(button => {
+    button.addEventListener('click', function() {
+        const historyId = this.getAttribute('data-id');
+        const row = this.closest('tr');
         
-        if (confirm('确定要删除这条观看记录吗？')) {
-            $.ajax({
-                url: '/delete_history/' + recordId + '/',
+        if (confirm('确定要删除这条观看历史吗？')) {
+            fetch(`/remove_history/${historyId}/`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        row.fadeOut(function() {
-                            row.remove();
-                            // 如果没有记录了，显示空状态
-                            if ($('tbody tr').length === 0) {
-                                location.reload();
-                            }
-                        });
-                    }
-                },
-                error: function() {
-                    alert('删除失败，请重试！');
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
                 }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    row.style.opacity = '0.5';
+                    setTimeout(() => {
+                        row.remove();
+                        // 检查是否还有记录
+                        if (document.querySelectorAll('tbody tr').length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                } else {
+                    alert('删除失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除失败，请重试');
             });
         }
-    });
-    
-    // 清空所有历史记录
-    $('#clearHistoryBtn').on('click', function() {
-        if (confirm('确定要清空所有观看历史吗？此操作不可撤销！')) {
-            $.ajax({
-                url: '/clear_history/',
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        location.reload();
-                    }
-                },
-                error: function() {
-                    alert('清空失败，请重试！');
-                }
-            });
-        }
-    });
-    
-    // 为表格添加悬停效果
-    $('tbody tr').hover(function() {
-        $(this).addClass('table-active');
-    }, function() {
-        $(this).removeClass('table-active');
     });
 });
+
+// 获取CSRF Token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 {% endblock %}
